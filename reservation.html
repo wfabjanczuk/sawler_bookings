@@ -64,20 +64,21 @@
 
 <div class="container">
     <div class="row">
-        <div class="col">
+        <div class="col-lg-3"></div>
+        <div class="col-lg-6">
             <h1 class="text-center mt-5">Search for availability</h1>
             <form action="reservation.html" method="POST">
-                <div class="mb-3">
-                    <label for="startDate" class="form-label">Starting date</label>
-                    <input type="date" name="start_date" class="form-control" id="startDate" aria-describedby="startDateHelp">
-                    <div id="startDateHelp" class="form-text">Enter your starting date in the form of YYYY-MM-DD.</div>
+                <div class="row my-3">
+                    <div class="col-sm-6">
+                        <label for="startDate" class="form-label">Starting date</label>
+                        <input required type="date" name="start_date" class="form-control" id="startDate">
+                    </div>
+                    <div class="col-sm-6">
+                        <label for="endDate" class="form-label">Ending date</label>
+                        <input required type="date" name="end_date" class="form-control" id="endDate">
+                    </div>
                 </div>
-                <div class="mb-3">
-                    <label for="endDate" class="form-label">Ending date</label>
-                    <input type="date" name="end_date" class="form-control" id="endDate" aria-describedby="endDateHelp">
-                    <div id="endDateHelp" class="form-text">Enter your ending date in the form of YYYY-MM-DD.</div>
-                </div>
-                <button type="submit" class="btn btn-primary">Submit</button>
+                <button type="submit" class="btn btn-primary">Search</button>
             </form>
         </div>
     </div>
