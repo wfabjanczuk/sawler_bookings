@@ -65,7 +65,20 @@
 <div class="container">
     <div class="row">
         <div class="col">
-            <h1 class="text-center mt-4">This will be the reservation page</h1>
+            <h1 class="text-center mt-5">Search for availability</h1>
+            <form action="reservation.html" method="POST">
+                <div class="mb-3">
+                    <label for="startDate" class="form-label">Starting date</label>
+                    <input type="date" name="start_date" class="form-control" id="startDate" aria-describedby="startDateHelp">
+                    <div id="startDateHelp" class="form-text">Enter your starting date in the form of YYYY-MM-DD.</div>
+                </div>
+                <div class="mb-3">
+                    <label for="endDate" class="form-label">Ending date</label>
+                    <input type="date" name="end_date" class="form-control" id="endDate" aria-describedby="endDateHelp">
+                    <div id="endDateHelp" class="form-text">Enter your ending date in the form of YYYY-MM-DD.</div>
+                </div>
+                <button type="submit" class="btn btn-primary">Submit</button>
+            </form>
         </div>
     </div>
 </div>
