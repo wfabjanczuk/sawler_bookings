@@ -108,6 +108,7 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/vanillajs-datepicker@1.1.4/dist/js/datepicker-full.min.js"></script>
 <script src="https://unpkg.com/notie"></script>
+<script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
     (function () {
         'use strict'
@@ -142,8 +143,18 @@
         });
     }
 
+    function notifyModal(title, html, icon, confirmButtonText) {
+        Swal.fire({
+            title: title,
+            html: html,
+            icon: icon,
+            confirmButtonText: confirmButtonText,
+        })
+    }
+
     document.getElementById('notificationTest').addEventListener('click', function () {
-        notify('This is my success message', 'success');
+        // notify('This is my success message', 'success');
+        notifyModal('This is my title', '<em>Hello world!</em>', 'success', 'My text for the button');
     });
 </script>
 

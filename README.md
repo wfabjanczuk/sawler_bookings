@@ -11,3 +11,4 @@ This is a repository following Udemy course [Building Modern Web Applications wi
   - [Bootstrap 5](https://getbootstrap.com/)
   - [Vanilla JS Datepicker](https://github.com/mymth/vanillajs-datepicker)
   - [notie](https://github.com/jaredreich/notie)
+  - [sweetalert2](https://sweetalert2.github.io/)
