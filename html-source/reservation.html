@@ -9,6 +9,7 @@
     <title>Reservation</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vanillajs-datepicker@1.1.4/dist/css/datepicker.min.css">
 
     <style>
         .my-footer {
@@ -68,14 +69,14 @@
         <div class="col-lg-6">
             <h1 class="text-center mt-5">Search for availability</h1>
             <form action="reservation.html" method="POST" novalidate class="needs-validation">
-                <div class="row my-3">
+                <div class="row my-3" id="reservation-dates">
                     <div class="col-sm-6">
                         <label for="startDate" class="form-label">Starting date</label>
-                        <input required type="date" name="start_date" class="form-control" id="startDate">
+                        <input required type="text" name="start_date" class="form-control" id="startDate" placeholder="Arrival">
                     </div>
                     <div class="col-sm-6">
                         <label for="endDate" class="form-label">Ending date</label>
-                        <input required type="date" name="end_date" class="form-control" id="endDate">
+                        <input required type="text" name="end_date" class="form-control" id="endDate" placeholder="Departure">
                     </div>
                 </div>
                 <button type="submit" class="btn btn-primary">Search</button>
@@ -99,6 +100,7 @@
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/vanillajs-datepicker@1.1.4/dist/js/datepicker-full.min.js"></script>
 <script>
     (function () {
         'use strict'
@@ -120,6 +122,11 @@
                 }, false)
             })
     })()
+
+    const reservationDates = document.getElementById('reservation-dates');
+    const dateRangePicker = new DateRangePicker(reservationDates, {
+        format: 'yyyy-mm-dd'
+    });
 </script>
 
 </body>

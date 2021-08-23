@@ -3,8 +3,10 @@
 This is a repository following Udemy course [Building Modern Web Applications with Go (Golang)](https://www.udemy.com/course/building-modern-web-applications-with-go/) created by Trevor Sawler.
 
 - Built in Go version 1.17
-- Uses:
+- Backend uses:
   - [chi router](https://github.com/go-chi/chi)
   - [SCS: HTTP Session Management for Go](https://github.com/alexedwards/scs)
   - [nosurf](https://github.com/justinas/nosurf)
-    
+- Frontend uses:
+  - [Bootstrap 5](https://getbootstrap.com/)
+  - [Vanilla JS Datepicker](https://github.com/mymth/vanillajs-datepicker)
