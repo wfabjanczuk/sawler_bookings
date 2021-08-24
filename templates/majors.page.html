@@ -1,0 +1,172 @@
+{{template "base" .}}
+
+{{define "content"}}
+
+<div class="container">
+    <div class="row">
+        <div class="col">
+            <img src="/static/images/majors-suite.png" class="img-fluid img-thumbnail mx-auto d-block room-image" alt="Major's Suite image">
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col">
+            <h1 class="text-center mt-4">Major's Suite</h1>
+            <p>
+                Your home away form home, set on the majestic waters of the Atlantic Ocean, this will be a vacation to remember.
+                Your home away form home, set on the majestic waters of the Atlantic Ocean, this will be a vacation to remember.
+                Your home away form home, set on the majestic waters of the Atlantic Ocean, this will be a vacation to remember.
+                Your home away form home, set on the majestic waters of the Atlantic Ocean, this will be a vacation to remember.
+                Your home away form home, set on the majestic waters of the Atlantic Ocean, this will be a vacation to remember.
+                Your home away form home, set on the majestic waters of the Atlantic Ocean, this will be a vacation to remember.
+            </p>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col text-center">
+            <a id="check-availability-button" href="#" class="btn btn-success">Check availability</a>
+        </div>
+    </div>
+</div>
+
+{{end}}
+
+{{define "js"}}
+<script>
+    let attention = Prompt();
+
+    document.getElementById('check-availability-button').addEventListener('click', function () {
+        const html = `
+<div class="container">
+    <form id="check-availability" action="" method="post" novalidate class="needs-validation">
+        <div class="row my-3" id="reservation-dates-modal">
+            <div class="col-sm-6">
+                <label for="startDateModal" class="form-label">Starting date</label>
+                <input disabled required type="text" name="start_date" class="form-control" id="startDateModal" placeholder="Arrival">
+            </div>
+            <div class="col-sm-6">
+                <label for="endDateModal" class="form-label">Ending date</label>
+                <input disabled required type="text" name="end_date" class="form-control" id="endDateModal" placeholder="Departure">
+            </div>
+        </div>
+    </form>
+</div>
+`;
+        const preConfirm = () => {
+                return [
+                    document.getElementById('startDateModal').value,
+                    document.getElementById('endDateModal').value,
+                ]
+            },
+            willOpen = () => {
+                const reservationDatesModal = document.getElementById('reservation-dates-modal');
+                const dateRangePicker = new DateRangePicker(reservationDatesModal, {
+                    format: 'yyyy-mm-dd',
+                });
+            },
+            didOpen = () => {
+                document.getElementById('startDateModal').removeAttribute('disabled');
+                document.getElementById('endDateModal').removeAttribute('disabled');
+            };
+
+        attention.custom({
+            title: 'Choose your dates',
+            msg: html,
+            preConfirm: preConfirm,
+            willOpen: willOpen,
+            didOpen: didOpen,
+        });
+    });
+
+    function Prompt() {
+        let toast = function (c) {
+            const {
+                msg = '',
+                icon = 'success',
+                position = 'top-end',
+            } = c;
+
+            const Toast = Swal.mixin({
+                toast: true,
+                title: msg,
+                position: position,
+                icon: icon,
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true,
+                didOpen: (toast) => {
+                    toast.addEventListener('mouseenter', Swal.stopTimer)
+                    toast.addEventListener('mouseleave', Swal.resumeTimer)
+                }
+            })
+
+            Toast.fire({});
+        }
+
+        let success = function (c) {
+            const {
+                msg = '',
+                title = '',
+                footer = '',
+            } = c;
+
+            Swal.fire({
+                icon: 'success',
+                title: title,
+                text: msg,
+                footer: footer,
+            })
+        }
+
+        let error = function (c) {
+            const {
+                msg = '',
+                title = '',
+                footer = '',
+            } = c;
+
+            Swal.fire({
+                icon: 'error',
+                title: title,
+                text: msg,
+                footer: footer,
+            })
+        }
+
+        let custom = async function custom(c) {
+            const {
+                title = '',
+                msg = '',
+                preConfirm = () => {
+                },
+                willOpen = () => {
+                },
+                didOpen = () => {
+                },
+            } = c;
+
+            const {value: formValues} = await Swal.fire({
+                title: title,
+                html: msg,
+                backdrop: false,
+                focusConfirm: false,
+                showCancelButton: true,
+                preConfirm: preConfirm,
+                willOpen: willOpen,
+                didOpen: didOpen,
+            })
+
+            if (formValues) {
+                Swal.fire(JSON.stringify(formValues))
+            }
+        }
+
+        return {
+            toast: toast,
+            success: success,
+            error: error,
+            custom: custom,
+        }
+    }
+</script>
+{{end}}
