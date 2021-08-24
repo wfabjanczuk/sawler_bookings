@@ -3,6 +3,7 @@ package render
 import (
 	"bytes"
 	"fmt"
+	"github.com/justinas/nosurf"
 	"html/template"
 	"log"
 	"net/http"
@@ -20,11 +21,13 @@ func NewTemplates(a *config.AppConfig) {
 	app = a
 }
 
-func AddDefaultData(td *models.TemplateData) *models.TemplateData {
+func AddDefaultData(r *http.Request, td *models.TemplateData) *models.TemplateData {
+	td.CsrfToken = nosurf.Token(r)
+
 	return td
 }
 
-func RenderTemplate(w http.ResponseWriter, tmpl string, td *models.TemplateData) {
+func RenderTemplate(w http.ResponseWriter, r *http.Request, tmpl string, td *models.TemplateData) {
 	var tc map[string]*template.Template
 	var err error
 
@@ -41,7 +44,7 @@ func RenderTemplate(w http.ResponseWriter, tmpl string, td *models.TemplateData)
 	}
 
 	buf := new(bytes.Buffer)
-	td = AddDefaultData(td)
+	td = AddDefaultData(r, td)
 
 	_ = parsedTemplate.Execute(buf, td)
 	_, err = buf.WriteTo(w)

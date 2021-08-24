@@ -38,7 +38,8 @@
     document.getElementById('check-availability-button').addEventListener('click', function () {
         const html = `
 <div class="container">
-    <form id="check-availability" action="" method="post" novalidate class="needs-validation">
+    <form id="check-availability" action="" method="POST" novalidate class="needs-validation">
+        <input type="hidden" name="csrf_token" value="{{.CsrfToken}}"/>
         <div class="row my-3" id="reservation-dates-modal">
             <div class="col-sm-6">
                 <label for="startDateModal" class="form-label">Starting date</label>
