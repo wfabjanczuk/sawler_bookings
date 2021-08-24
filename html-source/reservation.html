@@ -25,6 +25,10 @@
         .room-image {
             max-width: 50%;
         }
+
+        .datepicker {
+            z-index: 2000;
+        }
     </style>
 </head>
 
@@ -159,7 +163,48 @@
         // notifyModal('This is my title', '<em>Hello world!</em>', 'success', 'My text for the button');
         // attention.toast({msg: 'Hello, world', icon: 'error'});
         // attention.success({msg: 'Hello, world'});
-        attention.error({msg: 'Ooops!'});
+        // attention.error({msg: 'Ooops!'});
+
+        const html = `
+<div class="container">
+    <form id="check-availability" action="" method="post" novalidate class="needs-validation">
+        <div class="row my-3" id="reservation-dates-modal">
+            <div class="col-sm-6">
+                <label for="startDateModal" class="form-label">Starting date</label>
+                <input disabled required type="text" name="start_date" class="form-control" id="startDateModal" placeholder="Arrival">
+            </div>
+            <div class="col-sm-6">
+                <label for="endDateModal" class="form-label">Ending date</label>
+                <input disabled required type="text" name="end_date" class="form-control" id="endDateModal" placeholder="Departure">
+            </div>
+        </div>
+    </form>
+</div>
+`;
+        const preConfirm = () => {
+                return [
+                    document.getElementById('startDateModal').value,
+                    document.getElementById('endDateModal').value,
+                ]
+            },
+            willOpen = () => {
+                const reservationDatesModal = document.getElementById('reservation-dates-modal');
+                const dateRangePicker = new DateRangePicker(reservationDatesModal, {
+                    format: 'yyyy-mm-dd',
+                });
+            },
+            didOpen = () => {
+                document.getElementById('startDateModal').removeAttribute('disabled');
+                document.getElementById('endDateModal').removeAttribute('disabled');
+            };
+
+        attention.custom({
+            title: 'Choose your dates',
+            msg: html,
+            preConfirm: preConfirm,
+            willOpen: willOpen,
+            didOpen: didOpen,
+        });
     });
 
     function Prompt() {
@@ -217,10 +262,36 @@
             })
         }
 
+        let custom = async function custom(c) {
+            const {
+                title = '',
+                msg = '',
+                preConfirm = () => {},
+                willOpen = () => {},
+                didOpen = () => {},
+            } = c;
+
+            const {value: formValues} = await Swal.fire({
+                title: title,
+                html: msg,
+                backdrop: false,
+                focusConfirm: false,
+                showCancelButton: true,
+                preConfirm: preConfirm,
+                willOpen: willOpen,
+                didOpen: didOpen,
+            })
+
+            if (formValues) {
+                Swal.fire(JSON.stringify(formValues))
+            }
+        }
+
         return {
             toast: toast,
             success: success,
             error: error,
+            custom: custom,
         }
     }
 </script>
