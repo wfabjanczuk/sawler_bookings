@@ -110,6 +110,8 @@
 <script src="https://unpkg.com/notie"></script>
 <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
+    let attention = Prompt();
+
     (function () {
         'use strict'
 
@@ -154,8 +156,24 @@
 
     document.getElementById('notificationTest').addEventListener('click', function () {
         // notify('This is my success message', 'success');
-        notifyModal('This is my title', '<em>Hello world!</em>', 'success', 'My text for the button');
+        // notifyModal('This is my title', '<em>Hello world!</em>', 'success', 'My text for the button');
+        attention.success();
     });
+
+    function Prompt() {
+        let toast = function () {
+            console.log('clicked button and got toast');
+        }
+
+        let success = function () {
+            console.log('clicked button and got success');
+        }
+
+        return {
+            toast: toast,
+            success: success,
+        }
+    }
 </script>
 
 </body>
