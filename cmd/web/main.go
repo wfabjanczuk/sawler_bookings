@@ -1,9 +1,11 @@
 package main
 
 import (
+	"encoding/gob"
 	"fmt"
 	"github.com/wfabjanczuk/sawler_bookings/internal/config"
 	"github.com/wfabjanczuk/sawler_bookings/internal/handlers"
+	"github.com/wfabjanczuk/sawler_bookings/internal/models"
 	"github.com/wfabjanczuk/sawler_bookings/internal/render"
 	"log"
 	"net/http"
@@ -18,6 +20,8 @@ var app config.AppConfig
 var session *scs.SessionManager
 
 func main() {
+	gob.Register(models.Reservation{})
+
 	app.InProduction = false
 
 	session = scs.New()
