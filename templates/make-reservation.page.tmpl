@@ -11,25 +11,29 @@
                 <div class="row my-3">
                     <div class="col">
                         <label for="firstName" class="form-label">First name:</label>
-                        <input required type="text" name="first_name" class="form-control" id="firstName">
+                        {{with .Form.Errors.GetFirst "first_name"}}<label class="text-danger">{{.}}</label>{{end}}
+                        <input required type="text" name="first_name" class="form-control {{if .Form.Errors.GetFirst "first_name"}}is-invalid{{end}}" id="firstName" value="{{.Form.Get "first_name"}}">
                     </div>
                 </div>
                 <div class="row my-3">
                     <div class="col">
                         <label for="lastName" class="form-label">Last name:</label>
-                        <input required type="text" name="last_name" class="form-control" id="lastName">
+                        {{with .Form.Errors.GetFirst "last_name"}}<label class="text-danger">{{.}}</label>{{end}}
+                        <input required type="text" name="last_name" class="form-control {{if .Form.Errors.GetFirst "last_name"}}is-invalid{{end}}" id="lastName" value="{{.Form.Get "last_name"}}">
                     </div>
                 </div>
                 <div class="row my-3">
                     <div class="col">
                         <label for="email" class="form-label">Email:</label>
-                        <input required type="text" name="email" class="form-control" id="email">
+                        {{with .Form.Errors.GetFirst "email"}}<label class="text-danger">{{.}}</label>{{end}}
+                        <input required type="text" name="email" class="form-control {{if .Form.Errors.GetFirst "email"}}is-invalid{{end}}" id="email" value="{{.Form.Get "email"}}">
                     </div>
                 </div>
                 <div class="row my-3">
                     <div class="col">
                         <label for="phone" class="form-label">Phone number:</label>
-                        <input required type="text" name="phone" class="form-control" id="phone">
+                        {{with .Form.Errors.GetFirst "phone"}}<label class="text-danger">{{.}}</label>{{end}}
+                        <input required type="text" name="phone" class="form-control {{if .Form.Errors.GetFirst "phone"}}is-invalid{{end}}" id="phone" value="{{.Form.Get "phone"}}">
                     </div>
                 </div>
                 <input type="submit" class="btn btn-primary" value="Make reservation">
