@@ -7,11 +7,11 @@ func (e errors) Add(field string, message string) {
 }
 
 func (e errors) GetFirst(field string) string {
-	es := e[field]
+	fieldErrors := e[field]
 
-	if len(es) == 0 {
+	if len(fieldErrors) == 0 {
 		return ""
 	}
 
-	return es[0]
+	return fieldErrors[0]
 }
