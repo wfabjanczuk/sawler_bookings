@@ -61,6 +61,7 @@ func (m *Repository) PostReservation(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		log.Println(err)
+
 		return
 	}
 
@@ -72,8 +73,9 @@ func (m *Repository) PostReservation(w http.ResponseWriter, r *http.Request) {
 	}
 
 	form := forms.New(r.PostForm)
-	form.Required("first_name", "last_name", "email", "phone")
+	form.Required("first_name", "last_name", "email")
 	form.MinLength("first_name", 3)
+	form.IsEmail("email")
 
 	if !form.Valid() {
 		data := make(map[string]interface{})
@@ -83,6 +85,7 @@ func (m *Repository) PostReservation(w http.ResponseWriter, r *http.Request) {
 			Form: form,
 			Data: data,
 		})
+
 		return
 	}
 
@@ -126,6 +129,7 @@ func (m *Repository) AvailabilityJson(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println(err)
 		w.Write([]byte("An error occured"))
+
 		return
 	}
 
