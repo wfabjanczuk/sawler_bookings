@@ -4,13 +4,12 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/justinas/nosurf"
+	"github.com/wfabjanczuk/sawler_bookings/internal/config"
+	"github.com/wfabjanczuk/sawler_bookings/internal/models"
 	"html/template"
 	"log"
 	"net/http"
 	"path/filepath"
-
-	"github.com/wfabjanczuk/sawler_bookings/pkg/config"
-	"github.com/wfabjanczuk/sawler_bookings/pkg/models"
 )
 
 var functions = template.FuncMap{}

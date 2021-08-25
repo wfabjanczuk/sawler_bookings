@@ -2,14 +2,14 @@ package main
 
 import (
 	"fmt"
+	"github.com/wfabjanczuk/sawler_bookings/internal/config"
+	"github.com/wfabjanczuk/sawler_bookings/internal/handlers"
+	"github.com/wfabjanczuk/sawler_bookings/internal/render"
 	"log"
 	"net/http"
 	"time"
 
 	"github.com/alexedwards/scs/v2"
-	"github.com/wfabjanczuk/sawler_bookings/pkg/config"
-	"github.com/wfabjanczuk/sawler_bookings/pkg/handlers"
-	"github.com/wfabjanczuk/sawler_bookings/pkg/render"
 )
 
 const portNumber = 8080

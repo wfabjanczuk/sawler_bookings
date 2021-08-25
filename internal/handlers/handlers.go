@@ -3,12 +3,11 @@ package handlers
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/wfabjanczuk/sawler_bookings/internal/config"
+	"github.com/wfabjanczuk/sawler_bookings/internal/models"
+	"github.com/wfabjanczuk/sawler_bookings/internal/render"
 	"log"
 	"net/http"
-
-	"github.com/wfabjanczuk/sawler_bookings/pkg/config"
-	"github.com/wfabjanczuk/sawler_bookings/pkg/models"
-	"github.com/wfabjanczuk/sawler_bookings/pkg/render"
 )
 
 var Repo *Repository
