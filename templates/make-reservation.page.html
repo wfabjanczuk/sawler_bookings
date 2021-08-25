@@ -6,7 +6,7 @@
     <div class="row">
         <div class="col">
             <h1 class="text-center mt-5">Make reservation</h1>
-            <form action="/make-reservation" class="needs-validation" novalidate method="POST">
+            <form action="/make-reservation" method="POST" novalidate> <!-- class="needs-validation" -->
                 <input type="hidden" name="csrf_token" value="{{.CsrfToken}}"/>
                 <div class="row my-3">
                     <div class="col">

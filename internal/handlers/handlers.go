@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/wfabjanczuk/sawler_bookings/internal/config"
+	"github.com/wfabjanczuk/sawler_bookings/internal/forms"
 	"github.com/wfabjanczuk/sawler_bookings/internal/models"
 	"github.com/wfabjanczuk/sawler_bookings/internal/render"
 	"log"
@@ -45,6 +46,12 @@ func (m *Repository) About(w http.ResponseWriter, r *http.Request) {
 }
 
 func (m *Repository) Reservation(w http.ResponseWriter, r *http.Request) {
+	render.RenderTemplate(w, r, "make-reservation.page.html", &models.TemplateData{
+		Form: forms.New(nil),
+	})
+}
+
+func (m *Repository) PostReservation(w http.ResponseWriter, r *http.Request) {
 	render.RenderTemplate(w, r, "make-reservation.page.html", &models.TemplateData{})
 }
 
