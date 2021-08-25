@@ -39,7 +39,6 @@
         const html = `
 <div class="container">
     <form id="check-availability" action="" method="POST" novalidate class="needs-validation">
-        <input type="hidden" name="csrf_token" value="{{.CsrfToken}}"/>
         <div class="row my-3" id="reservation-dates-modal">
             <div class="col-sm-6">
                 <label for="startDateModal" class="form-label">Starting date</label>
@@ -71,9 +70,15 @@
             },
             callback = (result) => {
                 console.log(result);
-                console.log('Callback called');
 
-                fetch('/search-availability-json')
+                let form = document.getElementById('check-availability');
+                let formData = new FormData(form);
+                formData.append('csrf_token', "{{.CsrfToken}}");
+
+                fetch('/search-availability-json', {
+                    method: 'post',
+                    body: formData,
+                })
                     .then(response => response.json())
                     .then(data => {
                         console.log(data);
@@ -170,11 +175,7 @@
             });
 
             if (result && callback !== undefined) {
-                let argument = (result.value !== "" && result.dismiss !== Swal.DismissReason.cancel)
-                    ? result.value
-                    : false;
-
-                callback(argument);
+                callback(result);
             }
         }
 
