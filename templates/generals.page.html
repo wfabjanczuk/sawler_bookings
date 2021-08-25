@@ -68,6 +68,16 @@
             didOpen = () => {
                 document.getElementById('startDateModal').removeAttribute('disabled');
                 document.getElementById('endDateModal').removeAttribute('disabled');
+            },
+            callback = (result) => {
+                console.log(result);
+                console.log('Callback called');
+
+                fetch('/search-availability-json')
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log(data);
+                    });
             };
 
         attention.custom({
@@ -76,6 +86,7 @@
             preConfirm: preConfirm,
             willOpen: willOpen,
             didOpen: didOpen,
+            callback: callback,
         });
     });
 
@@ -144,9 +155,10 @@
                 },
                 didOpen = () => {
                 },
+                callback = undefined,
             } = c;
 
-            const {value: formValues} = await Swal.fire({
+            const {value: result} = await Swal.fire({
                 title: title,
                 html: msg,
                 backdrop: false,
@@ -155,10 +167,14 @@
                 preConfirm: preConfirm,
                 willOpen: willOpen,
                 didOpen: didOpen,
-            })
+            });
 
-            if (formValues) {
-                Swal.fire(JSON.stringify(formValues))
+            if (result && callback !== undefined) {
+                let argument = (result.value !== "" && result.dismiss !== Swal.DismissReason.cancel)
+                    ? result.value
+                    : false;
+
+                callback(argument);
             }
         }
 
