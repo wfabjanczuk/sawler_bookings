@@ -93,6 +93,25 @@
             })
     })();
 
+    function notify(msg, msgType) {
+        notie.alert({
+            text: msg,
+            type: msgType,
+        });
+    }
+
+    {{with .Error}}
+    notify("{{.}}", "error");
+    {{end}}
+
+    {{with .Flash}}
+    notify("{{.}}", "success");
+    {{end}}
+
+    {{with .Warning}}
+    notify("{{.}}", "warning");
+    {{end}}
+
     let attention = Prompt();
     let checkAvailabilityButton = document.getElementById('check-availability-button');
 

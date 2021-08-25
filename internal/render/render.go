@@ -21,6 +21,9 @@ func NewTemplates(a *config.AppConfig) {
 }
 
 func AddDefaultData(r *http.Request, td *models.TemplateData) *models.TemplateData {
+	td.Flash = app.Session.PopString(r.Context(), "flash")
+	td.Warning = app.Session.PopString(r.Context(), "warning")
+	td.Error = app.Session.PopString(r.Context(), "error")
 	td.CsrfToken = nosurf.Token(r)
 
 	return td
