@@ -35,10 +35,16 @@ func (f *Form) Has(field string) bool {
 	return true
 }
 
-func (f *Form) Required(fields ...string) {
+func (f *Form) Required(fields ...string) bool {
+	ok := true
+
 	for _, field := range fields {
-		f.Has(field)
+		if !f.Has(field) {
+			ok = false
+		}
 	}
+
+	return ok
 }
 
 func (f *Form) MinLength(field string, length int) bool {
