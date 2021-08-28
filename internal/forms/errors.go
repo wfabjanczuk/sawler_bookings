@@ -3,6 +3,10 @@ package forms
 type errors map[string][]string
 
 func (e errors) Add(field string, message string) {
+	if message == "" {
+		message = "Unknown error"
+	}
+
 	e[field] = append(e[field], message)
 }
 

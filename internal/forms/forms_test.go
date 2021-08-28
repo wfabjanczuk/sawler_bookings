@@ -40,6 +40,10 @@ func TestForm_Required(t *testing.T) {
 		t.Error("Form does not have one field and func Required returns true")
 	}
 
+	if form.Errors.GetFirst("req3") == "" {
+		t.Error("Error for field req3 is not set when it should be")
+	}
+
 	if form.Valid() {
 		t.Error("Form is missing one field and is incorrectly considered as valid")
 	}
@@ -63,8 +67,26 @@ func TestForm_MinLength(t *testing.T) {
 		t.Error("Field does not satisfy minimum length and func MinLength returns true")
 	}
 
+	if form.Errors.GetFirst("short") == "" {
+		t.Error("Error for field short is not set when it should be")
+	}
+
 	if form.Valid() {
 		t.Error("Field is too short and the form is incorrectly considered as valid")
+	}
+
+	form = New(url.Values{})
+
+	if form.MinLength("non-existent-field", 10) {
+		t.Error("Func MinLength returned true for a non existent field")
+	}
+
+	if form.Errors.GetFirst("non-existent-field") == "" {
+		t.Error("Error for field non-existent-field is not set when it should be")
+	}
+
+	if form.Valid() {
+		t.Error("Form does not have a field satisfying given minimum length and is incorrectly considered as valid")
 	}
 }
 
@@ -86,7 +108,25 @@ func TestForm_IsEmail(t *testing.T) {
 		t.Error("Field is not an email and func IsEmail returns true")
 	}
 
+	if form.Errors.GetFirst("not-email") == "" {
+		t.Error("Error for field not-email is not set when it should be")
+	}
+
 	if form.Valid() {
 		t.Error("Field is not an email and the form is incorrectly considered as valid")
+	}
+
+	form = New(url.Values{})
+
+	if form.IsEmail("non-existent-field") {
+		t.Error("Func IsEmail returned true for a non existent field")
+	}
+
+	if form.Errors.GetFirst("non-existent-field") == "" {
+		t.Error("Error for field non-existent-field is not set when it should be")
+	}
+
+	if form.Valid() {
+		t.Error("Form does not have a field required to be an email and is incorrectly considered as valid")
 	}
 }
