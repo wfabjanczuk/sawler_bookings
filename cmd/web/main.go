@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/gob"
 	"fmt"
+	"github.com/alexedwards/scs/v2"
 	"github.com/wfabjanczuk/sawler_bookings/internal/config"
 	"github.com/wfabjanczuk/sawler_bookings/internal/handlers"
 	"github.com/wfabjanczuk/sawler_bookings/internal/models"
@@ -10,8 +11,6 @@ import (
 	"log"
 	"net/http"
 	"time"
-
-	"github.com/alexedwards/scs/v2"
 )
 
 const portNumber = 8080
@@ -20,6 +19,25 @@ var app config.AppConfig
 var session *scs.SessionManager
 
 func main() {
+	err := initialize()
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Printf("Starting application on port %d\n", portNumber)
+
+	addr := fmt.Sprintf(":%d", portNumber)
+	srv := &http.Server{
+		Addr:    addr,
+		Handler: routes(&app),
+	}
+
+	err = srv.ListenAndServe()
+	log.Fatal(err)
+}
+
+func initialize() error {
 	gob.Register(models.Reservation{})
 
 	app.InProduction = false
@@ -35,7 +53,7 @@ func main() {
 	tc, err := render.CreateTemplateCache()
 
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 
 	app.TemplateCache = tc
@@ -45,14 +63,5 @@ func main() {
 	render.NewTemplates(&app)
 	handlers.NewHandlers(repo)
 
-	fmt.Printf("Starting application on port %d\n", portNumber)
-
-	addr := fmt.Sprintf(":%d", portNumber)
-	srv := &http.Server{
-		Addr:    addr,
-		Handler: routes(&app),
-	}
-
-	err = srv.ListenAndServe()
-	log.Fatal(err)
+	return nil
 }
