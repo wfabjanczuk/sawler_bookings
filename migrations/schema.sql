@@ -301,6 +301,20 @@ ALTER TABLE ONLY public."user"
 
 
 --
+-- Name: reservation_email_idx; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX reservation_email_idx ON public.reservation USING btree (email);
+
+
+--
+-- Name: reservation_last_name_idx; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX reservation_last_name_idx ON public.reservation USING btree (last_name);
+
+
+--
 -- Name: room_restriction_reservation_id_idx; Type: INDEX; Schema: public; Owner: postgres
 --
 
