@@ -32,6 +32,8 @@ func getRoutes() http.Handler {
 	gob.Register(models.Reservation{})
 
 	app.InProduction = false
+	app.InfoLog = log.New(os.Stdout, "[INFO] ", log.Ldate|log.Ltime)
+	app.ErrorLog = log.New(os.Stdout, "[ERROR] ", log.Ldate|log.Ltime|log.Lshortfile)
 
 	session = scs.New()
 	session.Lifetime = 24 * time.Hour

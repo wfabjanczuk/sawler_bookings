@@ -5,6 +5,7 @@ import (
 	"github.com/alexedwards/scs/v2"
 	"github.com/wfabjanczuk/sawler_bookings/internal/config"
 	"github.com/wfabjanczuk/sawler_bookings/internal/models"
+	"log"
 	"net/http"
 	"os"
 	"testing"
@@ -18,6 +19,8 @@ func TestMain(m *testing.M) {
 	gob.Register(models.Reservation{})
 
 	testApp.InProduction = false
+	testApp.InfoLog = log.New(os.Stdout, "[INFO] ", log.Ldate|log.Ltime)
+	testApp.ErrorLog = log.New(os.Stdout, "[ERROR] ", log.Ldate|log.Ltime|log.Lshortfile)
 
 	session = scs.New()
 	session.Lifetime = 24 * time.Hour
