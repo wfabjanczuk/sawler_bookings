@@ -1,1 +1,1 @@
-sql("drop table public.user;")
+drop_table("user")
