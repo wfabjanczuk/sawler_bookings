@@ -6,10 +6,12 @@ import (
 	"github.com/alexedwards/scs/v2"
 	"github.com/wfabjanczuk/sawler_bookings/internal/config"
 	"github.com/wfabjanczuk/sawler_bookings/internal/handlers"
+	"github.com/wfabjanczuk/sawler_bookings/internal/helpers"
 	"github.com/wfabjanczuk/sawler_bookings/internal/models"
 	"github.com/wfabjanczuk/sawler_bookings/internal/render"
 	"log"
 	"net/http"
+	"os"
 	"time"
 )
 
@@ -17,6 +19,8 @@ const portNumber = 8080
 
 var app config.AppConfig
 var session *scs.SessionManager
+var infoLog *log.Logger
+var errorLog *log.Logger
 
 func main() {
 	err := initialize()
@@ -41,6 +45,8 @@ func initialize() error {
 	gob.Register(models.Reservation{})
 
 	app.InProduction = false
+	app.InfoLog = log.New(os.Stdout, "[INFO] ", log.Ldate|log.Ltime)
+	app.ErrorLog = log.New(os.Stdout, "[ERROR] ", log.Ldate|log.Ltime|log.Lshortfile)
 
 	session = scs.New()
 	session.Lifetime = 24 * time.Hour
@@ -62,6 +68,8 @@ func initialize() error {
 	repo := handlers.NewRepo(&app)
 	render.NewTemplates(&app)
 	handlers.NewHandlers(repo)
+
+	helpers.NewHelpers(&app)
 
 	return nil
 }
