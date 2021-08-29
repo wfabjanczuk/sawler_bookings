@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/wfabjanczuk/sawler_bookings/internal/config"
 	"github.com/wfabjanczuk/sawler_bookings/internal/forms"
+	"github.com/wfabjanczuk/sawler_bookings/internal/helpers"
 	"github.com/wfabjanczuk/sawler_bookings/internal/models"
 	"github.com/wfabjanczuk/sawler_bookings/internal/render"
 	"log"
@@ -50,7 +51,7 @@ func (m *Repository) PostReservation(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseForm()
 
 	if err != nil {
-		log.Println(err)
+		helpers.ServerError(w, err)
 
 		return
 	}
@@ -116,8 +117,7 @@ func (m *Repository) AvailabilityJson(w http.ResponseWriter, r *http.Request) {
 	out, err := json.MarshalIndent(response, "", "    ")
 
 	if err != nil {
-		log.Println(err)
-		w.Write([]byte("An error occured"))
+		helpers.ServerError(w, err)
 
 		return
 	}
@@ -135,7 +135,7 @@ func (m *Repository) ReservationSummary(w http.ResponseWriter, r *http.Request) 
 	reservation, ok := m.App.Session.Get(r.Context(), "reservation").(models.Reservation)
 
 	if !ok {
-		log.Println("Cannot get item from session")
+		m.App.ErrorLog.Println("Cannot get item from session")
 		m.App.Session.Put(r.Context(), "error", "Can't get reservation from session")
 		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 
