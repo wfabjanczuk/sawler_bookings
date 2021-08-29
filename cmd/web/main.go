@@ -43,7 +43,7 @@ func main() {
 }
 
 func initialize() (*driver.DB, error) {
-	gob.Register(models.Reservation{})
+	gob.Register(models.ReservationFormData{})
 
 	app.InProduction = false
 	app.InfoLog = log.New(os.Stdout, "[INFO] ", log.Ldate|log.Ltime)

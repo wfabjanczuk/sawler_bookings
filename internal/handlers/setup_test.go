@@ -29,7 +29,7 @@ var pathToTemplates = "./../../templates"
 var functions = template.FuncMap{}
 
 func getRoutes() http.Handler {
-	gob.Register(models.Reservation{})
+	gob.Register(models.ReservationFormData{})
 
 	app.InProduction = false
 	app.InfoLog = log.New(os.Stdout, "[INFO] ", log.Ldate|log.Ltime)

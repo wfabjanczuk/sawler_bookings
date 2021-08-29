@@ -16,7 +16,7 @@ var session *scs.SessionManager
 var testApp config.AppConfig
 
 func TestMain(m *testing.M) {
-	gob.Register(models.Reservation{})
+	gob.Register(models.ReservationFormData{})
 
 	testApp.InProduction = false
 	testApp.InfoLog = log.New(os.Stdout, "[INFO] ", log.Ldate|log.Ltime)
