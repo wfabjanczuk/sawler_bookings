@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/alexedwards/scs/v2"
 	"github.com/wfabjanczuk/sawler_bookings/internal/config"
+	"github.com/wfabjanczuk/sawler_bookings/internal/driver"
 	"github.com/wfabjanczuk/sawler_bookings/internal/handlers"
 	"github.com/wfabjanczuk/sawler_bookings/internal/helpers"
 	"github.com/wfabjanczuk/sawler_bookings/internal/models"
@@ -19,15 +20,15 @@ const portNumber = 8080
 
 var app config.AppConfig
 var session *scs.SessionManager
-var infoLog *log.Logger
-var errorLog *log.Logger
 
 func main() {
-	err := initialize()
+	db, err := initialize()
 
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	defer db.SQL.Close()
 
 	fmt.Printf("Starting application on port %d\n", portNumber)
 
@@ -41,7 +42,7 @@ func main() {
 	log.Fatal(err)
 }
 
-func initialize() error {
+func initialize() (*driver.DB, error) {
 	gob.Register(models.Reservation{})
 
 	app.InProduction = false
@@ -56,20 +57,30 @@ func initialize() error {
 
 	app.Session = session
 
+	log.Println("Connecting to the database...")
+	// TODO: Get connection string from env variables
+	db, err := driver.ConnectSQL("")
+
+	if err != nil {
+		log.Fatal("Cannot connect to database! Dying...")
+	}
+
+	log.Println("Connected to database!")
+
 	tc, err := render.CreateTemplateCache()
 
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	app.TemplateCache = tc
 	app.UseCache = false
 
-	repo := handlers.NewRepo(&app)
+	repo := handlers.NewRepo(&app, db)
 	render.NewTemplates(&app)
 	handlers.NewHandlers(repo)
 
 	helpers.NewHelpers(&app)
 
-	return nil
+	return db, nil
 }

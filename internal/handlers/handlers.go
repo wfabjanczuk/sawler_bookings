@@ -4,10 +4,13 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/wfabjanczuk/sawler_bookings/internal/config"
+	"github.com/wfabjanczuk/sawler_bookings/internal/driver"
 	"github.com/wfabjanczuk/sawler_bookings/internal/forms"
 	"github.com/wfabjanczuk/sawler_bookings/internal/helpers"
 	"github.com/wfabjanczuk/sawler_bookings/internal/models"
 	"github.com/wfabjanczuk/sawler_bookings/internal/render"
+	"github.com/wfabjanczuk/sawler_bookings/internal/repository"
+	"github.com/wfabjanczuk/sawler_bookings/internal/repository/dbrepo"
 	"log"
 	"net/http"
 )
@@ -16,11 +19,13 @@ var Repo *Repository
 
 type Repository struct {
 	App *config.AppConfig
+	DB  repository.DatabaseRepo
 }
 
-func NewRepo(a *config.AppConfig) *Repository {
+func NewRepo(a *config.AppConfig, db *driver.DB) *Repository {
 	return &Repository{
 		App: a,
+		DB:  dbrepo.NewPostgresRepo(db.SQL, a),
 	}
 }
 
