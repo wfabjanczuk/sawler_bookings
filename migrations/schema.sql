@@ -316,6 +316,22 @@ ALTER TABLE ONLY public.reservation
 
 
 --
+-- Name: room_restriction room_restriction_restriction_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.room_restriction
+    ADD CONSTRAINT room_restriction_restriction_id_fk FOREIGN KEY (restriction_id) REFERENCES public.restriction(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: room_restriction room_restriction_room_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.room_restriction
+    ADD CONSTRAINT room_restriction_room_id_fk FOREIGN KEY (room_id) REFERENCES public.room(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
 -- PostgreSQL database dump complete
 --
 
