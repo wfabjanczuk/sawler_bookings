@@ -29,7 +29,7 @@ var pathToTemplates = "./../../templates"
 var functions = template.FuncMap{}
 
 func getRoutes() http.Handler {
-	gob.Register(models.ReservationFormData{})
+	gob.Register(models.Reservation{})
 
 	app.InProduction = false
 	app.InfoLog = log.New(os.Stdout, "[INFO] ", log.Ldate|log.Ltime)
@@ -52,8 +52,8 @@ func getRoutes() http.Handler {
 	app.TemplateCache = tc
 	app.UseCache = true
 
-	repo := NewRepo(&app)
-	render.NewTemplates(&app)
+	repo := NewRepo(&app, nil)
+	render.NewRenderer(&app)
 	NewHandlers(repo)
 
 	mux := chi.NewRouter()

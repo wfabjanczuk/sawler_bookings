@@ -43,7 +43,8 @@ func main() {
 }
 
 func initialize() (*driver.DB, error) {
-	gob.Register(models.ReservationFormData{})
+	gob.Register(models.Reservation{})
+	gob.Register(models.User{})
 
 	app.InProduction = false
 	app.InfoLog = log.New(os.Stdout, "[INFO] ", log.Ldate|log.Ltime)
@@ -77,7 +78,7 @@ func initialize() (*driver.DB, error) {
 	app.UseCache = false
 
 	repo := handlers.NewRepo(&app, db)
-	render.NewTemplates(&app)
+	render.NewRenderer(&app)
 	handlers.NewHandlers(repo)
 
 	helpers.NewHelpers(&app)

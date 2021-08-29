@@ -2,13 +2,6 @@ package models
 
 import "time"
 
-type ReservationFormData struct {
-	FirstName string
-	LastName  string
-	Email     string
-	Phone     string
-}
-
 type User struct {
 	ID          int
 	FirstName   string
