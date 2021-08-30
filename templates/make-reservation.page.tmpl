@@ -38,10 +38,30 @@
                         <input required type="text" name="phone" class="form-control {{if .Form.Errors.GetFirst "phone"}}is-invalid{{end}}" id="phone" value="{{$res.Phone}}">
                     </div>
                 </div>
-                <input type="submit" class="btn btn-primary" value="Make reservation">
+                <div class="row my-3" id="reservation-dates">
+                    <div class="col-sm-6 my-2">
+                        <label for="startDate" class="form-label">Starting date</label>
+                        <input required type="text" name="start_date" class="form-control" id="startDate" placeholder="Arrival">
+                    </div>
+                    <div class="col-sm-6 my-2">
+                        <label for="endDate" class="form-label">Ending date</label>
+                        <input required type="text" name="end_date" class="form-control" id="endDate" placeholder="Departure">
+                    </div>
+                </div>
+                <input type="hidden" name="room_id" value="1"/>
+                <input type="submit" class="btn btn-primary my-3" value="Make reservation">
             </form>
         </div>
     </div>
 </div>
 
+{{end}}
+
+{{define "js"}}
+    <script>
+        const reservationDates = document.getElementById('reservation-dates');
+        const dateRangePicker = new DateRangePicker(reservationDates, {
+            format: 'yyyy-mm-dd'
+        });
+    </script>
 {{end}}
