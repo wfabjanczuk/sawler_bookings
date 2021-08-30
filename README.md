@@ -8,6 +8,7 @@ This is a repository following Udemy course [Building Modern Web Applications wi
   - [SCS: HTTP Session Management for Go](https://github.com/alexedwards/scs)
   - [nosurf](https://github.com/justinas/nosurf)
   - [govalidator](https://github.com/asaskevich/govalidator)
+  - [pgx: PostgreSQL Driver and Toolkit](https://github.com/jackc/pgx)
 - Frontend uses:
   - [Bootstrap 5](https://getbootstrap.com)
   - [Vanilla JS Datepicker](https://github.com/mymth/vanillajs-datepicker)
