@@ -13,6 +13,8 @@ import (
 	"github.com/wfabjanczuk/sawler_bookings/internal/repository/dbrepo"
 	"log"
 	"net/http"
+	"strconv"
+	"time"
 )
 
 var Repo *Repository
@@ -61,11 +63,23 @@ func (m *Repository) PostReservation(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	layout := "2006-01-02"
+	startDate, err := time.Parse(layout, r.Form.Get("start_date"))
+	helpers.ServerError(w, err)
+
+	endDate, err := time.Parse(layout, r.Form.Get("end_date"))
+	helpers.ServerError(w, err)
+
+	roomID, err := strconv.Atoi(r.Form.Get("room_id"))
+	helpers.ServerError(w, err)
+
 	reservation := models.Reservation{
 		FirstName: r.Form.Get("first_name"),
 		LastName:  r.Form.Get("last_name"),
 		Email:     r.Form.Get("email"),
-		Phone:     r.Form.Get("phone"),
+		StartDate: startDate,
+		EndDate:   endDate,
+		RoomID:    roomID,
 	}
 
 	form := forms.New(r.PostForm)
@@ -84,6 +98,9 @@ func (m *Repository) PostReservation(w http.ResponseWriter, r *http.Request) {
 
 		return
 	}
+
+	err = m.DB.InsertReservation(reservation)
+	helpers.ServerError(w, err)
 
 	m.App.Session.Put(r.Context(), "reservation", reservation)
 	http.Redirect(w, r, "/reservation-summary", http.StatusSeeOther)

@@ -19,6 +19,10 @@ func ClientError(w http.ResponseWriter, statusCode int) {
 }
 
 func ServerError(w http.ResponseWriter, err error) {
+	if err == nil {
+		return
+	}
+
 	trace := fmt.Sprintf("%s\n%s", err.Error(), debug.Stack())
 	app.ErrorLog.Println(trace)
 	http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
