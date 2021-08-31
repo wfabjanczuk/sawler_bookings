@@ -59,19 +59,30 @@ func (m *Repository) PostReservation(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		helpers.ServerError(w, err)
-
 		return
 	}
 
 	layout := "2006-01-02"
 	startDate, err := time.Parse(layout, r.Form.Get("start_date"))
-	helpers.ServerError(w, err)
+
+	if err != nil {
+		helpers.ServerError(w, err)
+		return
+	}
 
 	endDate, err := time.Parse(layout, r.Form.Get("end_date"))
-	helpers.ServerError(w, err)
+
+	if err != nil {
+		helpers.ServerError(w, err)
+		return
+	}
 
 	roomID, err := strconv.Atoi(r.Form.Get("room_id"))
-	helpers.ServerError(w, err)
+
+	if err != nil {
+		helpers.ServerError(w, err)
+		return
+	}
 
 	reservation := models.Reservation{
 		FirstName: r.Form.Get("first_name"),
@@ -100,8 +111,25 @@ func (m *Repository) PostReservation(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = m.DB.InsertReservation(reservation)
-	helpers.ServerError(w, err)
+	newReservationID, err := m.DB.InsertReservation(reservation)
+
+	if err != nil {
+		helpers.ServerError(w, err)
+		return
+	}
+
+	_, err = m.DB.InsertRoomRestriction(models.RoomRestriction{
+		RoomID:        roomID,
+		ReservationID: newReservationID,
+		RestrictionID: 1,
+		StartDate:     startDate,
+		EndDate:       endDate,
+	})
+
+	if err != nil {
+		helpers.ServerError(w, err)
+		return
+	}
 
 	m.App.Session.Put(r.Context(), "reservation", reservation)
 	http.Redirect(w, r, "/reservation-summary", http.StatusSeeOther)
