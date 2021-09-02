@@ -2,6 +2,8 @@ package handlers
 
 import (
 	"encoding/json"
+	"errors"
+	"github.com/go-chi/chi/v5"
 	"github.com/wfabjanczuk/sawler_bookings/internal/config"
 	"github.com/wfabjanczuk/sawler_bookings/internal/driver"
 	"github.com/wfabjanczuk/sawler_bookings/internal/forms"
@@ -205,7 +207,6 @@ func (m *Repository) AvailabilityJson(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		helpers.ServerError(w, err)
-
 		return
 	}
 
@@ -237,4 +238,25 @@ func (m *Repository) ReservationSummary(w http.ResponseWriter, r *http.Request) 
 	render.Template(w, r, "reservation-summary.page.tmpl", &models.TemplateData{
 		Data: data,
 	})
+}
+
+func (m *Repository) ChooseRoom(w http.ResponseWriter, r *http.Request) {
+	roomID, err := strconv.Atoi(chi.URLParam(r, "id"))
+
+	if err != nil {
+		helpers.ServerError(w, err)
+		return
+	}
+
+	reservation, ok := m.App.Session.Get(r.Context(), "reservation").(models.Reservation)
+
+	if !ok {
+		helpers.ServerError(w, errors.New("Reservation not found"))
+		return
+	}
+
+	reservation.RoomID = roomID
+	m.App.Session.Put(r.Context(), "reservation", reservation)
+
+	http.Redirect(w, r, "/make-reservation", http.StatusSeeOther)
 }
