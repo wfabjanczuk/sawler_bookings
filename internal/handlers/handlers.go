@@ -206,9 +206,34 @@ type availabilityJsonResponse struct {
 }
 
 func (m *Repository) AvailabilityJson(w http.ResponseWriter, r *http.Request) {
+	layout := "2006-01-02"
+	startDate, err := time.Parse(layout, r.Form.Get("start_date"))
+	if err != nil {
+		helpers.ServerError(w, err)
+		return
+	}
+
+	endDate, err := time.Parse(layout, r.Form.Get("end_date"))
+	if err != nil {
+		helpers.ServerError(w, err)
+		return
+	}
+
+	roomID, err := strconv.Atoi(r.Form.Get("room_id"))
+	if err != nil {
+		helpers.ServerError(w, err)
+		return
+	}
+
+	isAvailable, err := m.DB.SearchAvailabilityByDatesByRoomID(startDate, endDate, roomID)
+	if err != nil {
+		helpers.ServerError(w, err)
+		return
+	}
+
 	response := availabilityJsonResponse{
-		Ok:      true,
-		Message: "Available!",
+		Ok:      isAvailable,
+		Message: "",
 	}
 
 	out, err := json.MarshalIndent(response, "", "    ")

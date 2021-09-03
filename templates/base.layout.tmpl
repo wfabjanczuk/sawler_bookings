@@ -140,9 +140,13 @@
                     ]
                 },
                 willOpen = () => {
+                    let minDate = new Date();
+                    minDate.setDate(minDate.getDate() + 1);
+
                     const reservationDatesModal = document.getElementById('reservation-dates-modal');
                     const dateRangePicker = new DateRangePicker(reservationDatesModal, {
                         format: 'yyyy-mm-dd',
+                        minDate: minDate,
                     });
                 },
                 didOpen = () => {
@@ -155,6 +159,7 @@
                     let form = document.getElementById('check-availability');
                     let formData = new FormData(form);
                     formData.append('csrf_token', "{{.CsrfToken}}");
+                    formData.append('room_id', document.getElementById('room-header').getAttribute('data-room-id'));
 
                     fetch('/search-availability-json', {
                         method: 'post',
@@ -162,7 +167,11 @@
                     })
                         .then(response => response.json())
                         .then(data => {
-                            console.log(data);
+                            if (data.ok) {
+                                console.log('Room is available.');
+                            } else {
+                                console.log('Room is not available.');
+                            }
                         });
                 };
 
