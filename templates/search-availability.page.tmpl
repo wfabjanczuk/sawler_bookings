@@ -29,9 +29,13 @@
 
 {{define "js"}}
 <script>
+    let minDate = new Date();
+    minDate.setDate(minDate.getDate() + 1);
+
     const reservationDates = document.getElementById('reservation-dates');
     const dateRangePicker = new DateRangePicker(reservationDates, {
-        format: 'yyyy-mm-dd'
+        format: 'yyyy-mm-dd',
+        minDate: minDate,
     });
 </script>
 {{end}}
