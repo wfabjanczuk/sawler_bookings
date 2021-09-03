@@ -52,6 +52,12 @@ func (m *Repository) Reservation(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	currentDate := time.Now()
+	if reservation.StartDate.Before(currentDate) || reservation.EndDate.Before(currentDate) || reservation.EndDate.Before(reservation.StartDate) {
+		helpers.ServerError(w, errors.New("Invalid dates provided"))
+		return
+	}
+
 	var err error
 	reservation.Room, err = m.DB.GetRoomById(reservation.RoomID)
 
@@ -108,6 +114,18 @@ func (m *Repository) PostReservation(w http.ResponseWriter, r *http.Request) {
 			},
 		})
 
+		return
+	}
+
+	currentDate := time.Now()
+	if reservation.StartDate.Before(currentDate) || reservation.EndDate.Before(currentDate) || reservation.EndDate.Before(reservation.StartDate) {
+		helpers.ServerError(w, errors.New("Invalid dates provided"))
+		return
+	}
+
+	isAvailable, err := m.DB.SearchAvailabilityByDatesByRoomID(reservation.StartDate, reservation.EndDate, reservation.RoomID)
+	if !isAvailable || err != nil {
+		helpers.ServerError(w, err)
 		return
 	}
 
@@ -182,7 +200,6 @@ func (m *Repository) PostAvailability(w http.ResponseWriter, r *http.Request) {
 	data["rooms"] = rooms
 
 	currentDate := time.Now()
-
 	if startDate.Before(currentDate) || endDate.Before(currentDate) || endDate.Before(startDate) {
 		helpers.ServerError(w, errors.New("Invalid dates provided"))
 		return
@@ -305,6 +322,45 @@ func (m *Repository) ChooseRoom(w http.ResponseWriter, r *http.Request) {
 	reservation.RoomID = roomID
 	reservation.Room, err = m.DB.GetRoomById(roomID)
 
+	if err != nil {
+		helpers.ServerError(w, err)
+		return
+	}
+
+	m.App.Session.Put(r.Context(), "reservation", reservation)
+
+	http.Redirect(w, r, "/make-reservation", http.StatusSeeOther)
+}
+
+func (m *Repository) BookRoom(w http.ResponseWriter, r *http.Request) {
+	roomID, err := strconv.Atoi(r.URL.Query().Get("id"))
+	if err != nil {
+		helpers.ServerError(w, err)
+		return
+	}
+
+	layout := "2006-01-02"
+	sd := r.URL.Query().Get("s")
+	startDate, err := time.Parse(layout, sd)
+	if err != nil {
+		helpers.ServerError(w, err)
+		return
+	}
+
+	ed := r.URL.Query().Get("e")
+	endDate, err := time.Parse(layout, ed)
+	if err != nil {
+		helpers.ServerError(w, err)
+		return
+	}
+
+	reservation := models.Reservation{
+		RoomID:    roomID,
+		StartDate: startDate,
+		EndDate:   endDate,
+	}
+
+	reservation.Room, err = m.DB.GetRoomById(roomID)
 	if err != nil {
 		helpers.ServerError(w, err)
 		return

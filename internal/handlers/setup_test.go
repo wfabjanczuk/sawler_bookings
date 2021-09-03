@@ -74,8 +74,6 @@ func getRoutes() http.Handler {
 
 	mux.Get("/make-reservation", Repo.Reservation)
 	mux.Post("/make-reservation", Repo.PostReservation)
-	mux.Get("/make-reservation-gq", Repo.Reservation)
-	mux.Get("/make-reservation-ms", Repo.Reservation)
 
 	mux.Get("/reservation-summary", Repo.ReservationSummary)
 
