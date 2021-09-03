@@ -45,13 +45,25 @@ func (m *Repository) About(w http.ResponseWriter, r *http.Request) {
 }
 
 func (m *Repository) Reservation(w http.ResponseWriter, r *http.Request) {
-	var emptyReservation models.Reservation
-	data := make(map[string]interface{})
-	data["reservation"] = emptyReservation
+	reservation, ok := m.App.Session.Get(r.Context(), "reservation").(models.Reservation)
+
+	if !ok {
+		helpers.ServerError(w, errors.New("Cannot get reservation from session"))
+		return
+	}
+
+	startDate := reservation.StartDate.Format("2006-01-02")
+	endDate := reservation.EndDate.Format("2006-01-02")
 
 	render.Template(w, r, "make-reservation.page.tmpl", &models.TemplateData{
 		Form: forms.New(nil),
-		Data: data,
+		Data: map[string]interface{}{
+			"reservation": reservation,
+		},
+		StringMap: map[string]string{
+			"start_date": startDate,
+			"end_date":   endDate,
+		},
 	})
 }
 
@@ -251,11 +263,18 @@ func (m *Repository) ChooseRoom(w http.ResponseWriter, r *http.Request) {
 	reservation, ok := m.App.Session.Get(r.Context(), "reservation").(models.Reservation)
 
 	if !ok {
-		helpers.ServerError(w, errors.New("Reservation not found"))
+		helpers.ServerError(w, errors.New("Cannot get reservation from session"))
 		return
 	}
 
 	reservation.RoomID = roomID
+	reservation.Room, err = m.DB.GetRoomById(roomID)
+
+	if err != nil {
+		helpers.ServerError(w, err)
+		return
+	}
+
 	m.App.Session.Put(r.Context(), "reservation", reservation)
 
 	http.Redirect(w, r, "/make-reservation", http.StatusSeeOther)

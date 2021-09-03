@@ -8,8 +8,18 @@
             <h1 class="text-center mt-5">Make reservation</h1>
 
             {{$res := index .Data "reservation"}}
+
+            <h2>Reservation details</h2>
+            <div><strong>Arrival:</strong> {{index .StringMap "start_date"}}</div>
+            <div><strong>Departure:</strong> {{index .StringMap "end_date"}}</div>
+            <div><strong>Room name:</strong> {{$res.Room.RoomName}}</div>
+
             <form action="/make-reservation" method="POST" novalidate> <!-- class="needs-validation" -->
                 <input type="hidden" name="csrf_token" value="{{.CsrfToken}}"/>
+                <input type="hidden" name="start_date" value="{{index .StringMap "start_date"}}"/>
+                <input type="hidden" name="end_date" value="{{index .StringMap "end_date"}}"/>
+                <input type="hidden" name="room_id" value="{{$res.RoomID}}"/>
+
                 <div class="row my-3">
                     <div class="col">
                         <label for="firstName" class="form-label">First name:</label>
@@ -38,17 +48,6 @@
                         <input required type="text" name="phone" class="form-control {{if .Form.Errors.GetFirst "phone"}}is-invalid{{end}}" id="phone" value="{{$res.Phone}}">
                     </div>
                 </div>
-                <div class="row my-3" id="reservation-dates">
-                    <div class="col-sm-6 my-2">
-                        <label for="startDate" class="form-label">Starting date</label>
-                        <input required type="text" name="start_date" class="form-control" id="startDate" placeholder="Arrival">
-                    </div>
-                    <div class="col-sm-6 my-2">
-                        <label for="endDate" class="form-label">Ending date</label>
-                        <input required type="text" name="end_date" class="form-control" id="endDate" placeholder="Departure">
-                    </div>
-                </div>
-                <input type="hidden" name="room_id" value="1"/>
                 <input type="submit" class="btn btn-primary my-3" value="Make reservation">
             </form>
         </div>
