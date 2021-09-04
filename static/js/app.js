@@ -94,7 +94,7 @@ function Prompt() {
             icon: icon,
             title: title,
             html: msg,
-            backdrop: false,
+            backdrop: true,
             focusConfirm: false,
             showCancelButton: showCancelButton,
             showConfirmButton: showConfirmButton,

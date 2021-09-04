@@ -27,6 +27,10 @@ func (m *testDBRepo) InsertRoomRestriction(roomRes models.RoomRestriction) (int,
 }
 
 func (m *testDBRepo) SearchAvailabilityByDatesByRoomID(start, end time.Time, roomID int) (bool, error) {
+	if roomID > 2 {
+		return false, errors.New("room not found")
+	}
+
 	return true, nil
 }
 

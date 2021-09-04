@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"context"
+	"encoding/json"
 	"github.com/wfabjanczuk/sawler_bookings/internal/models"
 	"net/http"
 	"net/http/httptest"
@@ -368,6 +369,64 @@ func TestRepository_PostReservation(t *testing.T) {
 
 	if responseRecorder.Code != http.StatusTemporaryRedirect {
 		t.Errorf("PostReservation handler returned wrong response code: got %d, expected %d", responseRecorder.Code, http.StatusTemporaryRedirect)
+	}
+}
+
+func TestRepository_AvailabilityJson(t *testing.T) {
+	requestBody := strings.Join([]string{
+		"start_date=2050-01-01",
+		"end_date=2050-01-02",
+		"room_id=1",
+	}, "&")
+
+	request, err := http.NewRequest("POST", "/search-availability-json", strings.NewReader(requestBody))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	ctx := getContext(request, t)
+	request = request.WithContext(ctx)
+	request.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+
+	responseRecorder := httptest.NewRecorder()
+	handler := http.HandlerFunc(Repo.AvailabilityJson)
+	handler.ServeHTTP(responseRecorder, request)
+
+	var jsonResponse availabilityJsonResponse
+	err = json.Unmarshal([]byte(responseRecorder.Body.String()), &jsonResponse)
+	if err != nil {
+		t.Error("failed to parse json")
+	}
+
+	if !jsonResponse.Ok {
+		t.Error("Room supposed to be available")
+	}
+
+	requestBody = strings.Join([]string{
+		"start_date=2050-01-01",
+		"end_date=2050-01-02",
+		"room_id=1000",
+	}, "&")
+
+	request, err = http.NewRequest("POST", "/search-availability-json", strings.NewReader(requestBody))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	ctx = getContext(request, t)
+	request = request.WithContext(ctx)
+	request.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+
+	responseRecorder = httptest.NewRecorder()
+	handler.ServeHTTP(responseRecorder, request)
+
+	err = json.Unmarshal([]byte(responseRecorder.Body.String()), &jsonResponse)
+	if err != nil {
+		t.Error("failed to parse json")
+	}
+
+	if jsonResponse.Ok {
+		t.Error("Room supposed not to be available")
 	}
 }
 

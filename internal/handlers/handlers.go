@@ -200,6 +200,13 @@ func (m *Repository) Availability(w http.ResponseWriter, r *http.Request) {
 }
 
 func (m *Repository) PostAvailability(w http.ResponseWriter, r *http.Request) {
+	err := r.ParseForm()
+	if err != nil {
+		m.App.Session.Put(r.Context(), "error", "Can't parse form")
+		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+		return
+	}
+
 	layout := "2006-01-02"
 	startDate, err := time.Parse(layout, r.Form.Get("start_date"))
 
@@ -260,6 +267,12 @@ type availabilityJsonResponse struct {
 func (m *Repository) AvailabilityJson(w http.ResponseWriter, r *http.Request) {
 	layout := "2006-01-02"
 
+	err := r.ParseForm()
+	if err != nil {
+		helpers.ServerError(w, err)
+		return
+	}
+
 	sd := r.Form.Get("start_date")
 	startDate, err := time.Parse(layout, sd)
 	if err != nil {
@@ -282,7 +295,21 @@ func (m *Repository) AvailabilityJson(w http.ResponseWriter, r *http.Request) {
 
 	isAvailable, err := m.DB.SearchAvailabilityByDatesByRoomID(startDate, endDate, roomID)
 	if err != nil {
-		helpers.ServerError(w, err)
+		response := availabilityJsonResponse{
+			Ok:      false,
+			Message: "Error connecting to database",
+		}
+
+		out, err := json.MarshalIndent(response, "", "    ")
+
+		if err != nil {
+			helpers.ServerError(w, err)
+			return
+		}
+
+		m.App.InfoLog.Println(string(out))
+		w.Header().Set("Content-Type", "application/json")
+		w.Write(out)
 		return
 	}
 
