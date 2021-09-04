@@ -1,6 +1,6 @@
-# Bookings and reservations
+# Bookings
 
-This is a repository following Udemy course [Building Modern Web Applications with Go (Golang)](https://www.udemy.com/course/building-modern-web-applications-with-go/) created by Trevor Sawler.
+This is a repository following Udemy course [Building Modern Web Applications with Go (Golang)](https://www.udemy.com/course/building-modern-web-applications-with-go/) by professor [Trevor Sawler](https://github.com/tsawler).
 
 - Built in Go version 1.17
 - Backend uses:
@@ -9,6 +9,7 @@ This is a repository following Udemy course [Building Modern Web Applications wi
   - [nosurf](https://github.com/justinas/nosurf)
   - [govalidator](https://github.com/asaskevich/govalidator)
   - [pgx: PostgreSQL Driver and Toolkit](https://github.com/jackc/pgx)
+  - [Go Simple Mail](https://github.com/xhit/go-simple-mail)
 - Frontend uses:
   - [Bootstrap 5](https://getbootstrap.com)
   - [Vanilla JS Datepicker](https://github.com/mymth/vanillajs-datepicker)

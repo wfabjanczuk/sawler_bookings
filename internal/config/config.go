@@ -1,6 +1,7 @@
 package config
 
 import (
+	"github.com/wfabjanczuk/sawler_bookings/internal/models"
 	"html/template"
 	"log"
 
@@ -14,4 +15,5 @@ type AppConfig struct {
 	ErrorLog      *log.Logger
 	InProduction  bool
 	Session       *scs.SessionManager
+	MailChannel   chan models.MailData
 }
