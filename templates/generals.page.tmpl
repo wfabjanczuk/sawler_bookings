@@ -30,3 +30,9 @@
 </div>
 
 {{end}}
+
+{{define "js"}}
+    <script>
+        RoomPage(1, "{{.CsrfToken}}");
+    </script>
+{{end}}

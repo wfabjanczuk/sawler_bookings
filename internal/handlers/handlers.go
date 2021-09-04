@@ -12,7 +12,6 @@ import (
 	"github.com/wfabjanczuk/sawler_bookings/internal/render"
 	"github.com/wfabjanczuk/sawler_bookings/internal/repository"
 	"github.com/wfabjanczuk/sawler_bookings/internal/repository/dbrepo"
-	"log"
 	"net/http"
 	"strconv"
 	"time"
@@ -269,7 +268,7 @@ func (m *Repository) AvailabilityJson(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	log.Println(string(out))
+	m.App.InfoLog.Println(string(out))
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(out)
 }
