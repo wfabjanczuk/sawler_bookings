@@ -3,6 +3,7 @@ package handlers
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/go-chi/chi/v5"
 	"github.com/wfabjanczuk/sawler_bookings/internal/config"
 	"github.com/wfabjanczuk/sawler_bookings/internal/driver"
@@ -129,6 +130,13 @@ func (m *Repository) PostReservation(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	reservation.Room, err = m.DB.GetRoomById(reservation.RoomID)
+	if err != nil {
+		m.App.Session.Put(r.Context(), "error", "Room not found")
+		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+		return
+	}
+
 	form := forms.New(r.PostForm)
 	form.Required("first_name", "last_name", "email")
 	form.MinLength("first_name", 3)
@@ -182,6 +190,45 @@ func (m *Repository) PostReservation(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 		return
 	}
+
+	htmlMessage := fmt.Sprintf(`
+<p><strong>Reservation confirmation</strong></p>
+<p>Dear %s,</p>
+<p>This is to confirm your reservation from %s to %s in the %s room.</p>`,
+		reservation.FirstName,
+		reservation.StartDate.Format(layout),
+		reservation.EndDate.Format(layout),
+		reservation.Room.RoomName,
+	)
+
+	message := models.MailData{
+		To:      reservation.Email,
+		From:    "me@here.com",
+		Subject: "Reservation confirmation",
+		Content: htmlMessage,
+	}
+
+	m.App.MailChannel <- message
+
+	htmlMessage = fmt.Sprintf(`
+<p><strong>New reservation</strong></p>
+<p>Guest %s %s (email: %s) reserved %s room from %s to %s.</p>`,
+		reservation.FirstName,
+		reservation.LastName,
+		reservation.Email,
+		reservation.Room.RoomName,
+		reservation.StartDate.Format(layout),
+		reservation.EndDate.Format(layout),
+	)
+
+	message = models.MailData{
+		To:      reservation.Email,
+		From:    "property@owner.com",
+		Subject: "New reservation",
+		Content: htmlMessage,
+	}
+
+	m.App.MailChannel <- message
 
 	m.App.Session.Put(r.Context(), "reservation", reservation)
 	http.Redirect(w, r, "/reservation-summary", http.StatusSeeOther)
