@@ -91,17 +91,12 @@ func (m *Repository) Reservation(w http.ResponseWriter, r *http.Request) {
 }
 
 func (m *Repository) PostReservation(w http.ResponseWriter, r *http.Request) {
-	reservation, ok := m.App.Session.Get(r.Context(), "reservation").(models.Reservation)
-
-	if !ok {
-		helpers.ServerError(w, errors.New("cannot get reservation from session"))
-		return
-	}
+	var reservation models.Reservation
 
 	err := r.ParseForm()
-
 	if err != nil {
-		helpers.ServerError(w, err)
+		m.App.Session.Put(r.Context(), "error", "Can't parse form")
+		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 		return
 	}
 
@@ -110,12 +105,37 @@ func (m *Repository) PostReservation(w http.ResponseWriter, r *http.Request) {
 	reservation.Email = r.Form.Get("email")
 	reservation.Phone = r.Form.Get("phone")
 
+	layout := "2006-01-02"
+	sd := r.Form.Get("start_date")
+	reservation.StartDate, err = time.Parse(layout, sd)
+	if err != nil {
+		m.App.Session.Put(r.Context(), "error", "Can't parse start date")
+		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+		return
+	}
+
+	ed := r.Form.Get("end_date")
+	reservation.EndDate, err = time.Parse(layout, ed)
+	if err != nil {
+		m.App.Session.Put(r.Context(), "error", "Can't parse end date")
+		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+		return
+	}
+
+	reservation.RoomID, err = strconv.Atoi(r.Form.Get("room_id"))
+	if err != nil {
+		m.App.Session.Put(r.Context(), "error", "Invalid data")
+		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+		return
+	}
+
 	form := forms.New(r.PostForm)
 	form.Required("first_name", "last_name", "email")
 	form.MinLength("first_name", 3)
 	form.IsEmail("email")
 
 	if !form.Valid() {
+		http.Error(w, "Invalid form data", http.StatusSeeOther)
 		render.Template(w, r, "make-reservation.page.tmpl", &models.TemplateData{
 			Form: form,
 			Data: map[string]interface{}{
@@ -128,20 +148,22 @@ func (m *Repository) PostReservation(w http.ResponseWriter, r *http.Request) {
 
 	currentDate := time.Now()
 	if reservation.StartDate.Before(currentDate) || reservation.EndDate.Before(currentDate) || reservation.EndDate.Before(reservation.StartDate) {
-		helpers.ServerError(w, errors.New("invalid dates provided"))
+		m.App.Session.Put(r.Context(), "error", "Invalid dates provided")
+		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 		return
 	}
 
 	isAvailable, err := m.DB.SearchAvailabilityByDatesByRoomID(reservation.StartDate, reservation.EndDate, reservation.RoomID)
 	if !isAvailable || err != nil {
-		helpers.ServerError(w, err)
+		m.App.Session.Put(r.Context(), "error", "Room is not available anymore")
+		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 		return
 	}
 
 	newReservationID, err := m.DB.InsertReservation(reservation)
-
 	if err != nil {
-		helpers.ServerError(w, err)
+		m.App.Session.Put(r.Context(), "error", "Can't insert reservation to database")
+		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 		return
 	}
 
@@ -156,7 +178,8 @@ func (m *Repository) PostReservation(w http.ResponseWriter, r *http.Request) {
 	})
 
 	if err != nil {
-		helpers.ServerError(w, err)
+		m.App.Session.Put(r.Context(), "error", "Can't insert room restriction to database")
+		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 		return
 	}
 
