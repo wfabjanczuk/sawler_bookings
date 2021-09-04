@@ -54,13 +54,15 @@ func (m *Repository) Reservation(w http.ResponseWriter, r *http.Request) {
 	reservation, ok := m.App.Session.Get(r.Context(), "reservation").(models.Reservation)
 
 	if !ok {
-		helpers.ServerError(w, errors.New("Cannot get reservation from session"))
+		m.App.Session.Put(r.Context(), "error", "Can't get reservation from session")
+		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 		return
 	}
 
 	currentDate := time.Now()
 	if reservation.StartDate.Before(currentDate) || reservation.EndDate.Before(currentDate) || reservation.EndDate.Before(reservation.StartDate) {
-		helpers.ServerError(w, errors.New("Invalid dates provided"))
+		m.App.Session.Put(r.Context(), "error", "Invalid dates provided")
+		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 		return
 	}
 
@@ -68,7 +70,8 @@ func (m *Repository) Reservation(w http.ResponseWriter, r *http.Request) {
 	reservation.Room, err = m.DB.GetRoomById(reservation.RoomID)
 
 	if err != nil {
-		helpers.ServerError(w, err)
+		m.App.Session.Put(r.Context(), "error", "Room not found")
+		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 		return
 	}
 
@@ -91,7 +94,7 @@ func (m *Repository) PostReservation(w http.ResponseWriter, r *http.Request) {
 	reservation, ok := m.App.Session.Get(r.Context(), "reservation").(models.Reservation)
 
 	if !ok {
-		helpers.ServerError(w, errors.New("Cannot get reservation from session"))
+		helpers.ServerError(w, errors.New("cannot get reservation from session"))
 		return
 	}
 
@@ -125,7 +128,7 @@ func (m *Repository) PostReservation(w http.ResponseWriter, r *http.Request) {
 
 	currentDate := time.Now()
 	if reservation.StartDate.Before(currentDate) || reservation.EndDate.Before(currentDate) || reservation.EndDate.Before(reservation.StartDate) {
-		helpers.ServerError(w, errors.New("Invalid dates provided"))
+		helpers.ServerError(w, errors.New("invalid dates provided"))
 		return
 	}
 
@@ -207,7 +210,7 @@ func (m *Repository) PostAvailability(w http.ResponseWriter, r *http.Request) {
 
 	currentDate := time.Now()
 	if startDate.Before(currentDate) || endDate.Before(currentDate) || endDate.Before(startDate) {
-		helpers.ServerError(w, errors.New("Invalid dates provided"))
+		helpers.ServerError(w, errors.New("invalid dates provided"))
 		return
 	}
 
@@ -321,7 +324,7 @@ func (m *Repository) ChooseRoom(w http.ResponseWriter, r *http.Request) {
 	reservation, ok := m.App.Session.Get(r.Context(), "reservation").(models.Reservation)
 
 	if !ok {
-		helpers.ServerError(w, errors.New("Cannot get reservation from session"))
+		helpers.ServerError(w, errors.New("cannot get reservation from session"))
 		return
 	}
 

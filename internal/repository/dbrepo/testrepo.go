@@ -1,6 +1,7 @@
 package dbrepo
 
 import (
+	"errors"
 	"github.com/wfabjanczuk/sawler_bookings/internal/models"
 	"time"
 )
@@ -26,5 +27,9 @@ func (m *testDBRepo) SearchAvailabilityByDates(start, end time.Time) ([]models.R
 }
 
 func (m *testDBRepo) GetRoomById(roomID int) (models.Room, error) {
+	if roomID > 2 {
+		return models.Room{}, errors.New("room not found")
+	}
+
 	return models.Room{}, nil
 }
