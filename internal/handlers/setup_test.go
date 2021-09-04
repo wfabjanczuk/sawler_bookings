@@ -6,7 +6,6 @@ import (
 	"github.com/alexedwards/scs/v2"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
-	"github.com/justinas/nosurf"
 	"github.com/wfabjanczuk/sawler_bookings/internal/config"
 	"github.com/wfabjanczuk/sawler_bookings/internal/models"
 	"github.com/wfabjanczuk/sawler_bookings/internal/render"
@@ -20,15 +19,6 @@ import (
 )
 
 func TestMain(m *testing.M) {
-	os.Exit(m.Run())
-}
-
-var app config.AppConfig
-var session *scs.SessionManager
-var pathToTemplates = "./../../templates"
-var functions = template.FuncMap{}
-
-func getRoutes() http.Handler {
 	gob.Register(models.Reservation{})
 
 	app.InProduction = false
@@ -56,6 +46,15 @@ func getRoutes() http.Handler {
 	render.NewRenderer(&app)
 	NewHandlers(repo)
 
+	os.Exit(m.Run())
+}
+
+var app config.AppConfig
+var session *scs.SessionManager
+var pathToTemplates = "./../../templates"
+var functions = template.FuncMap{}
+
+func getRoutes() http.Handler {
 	mux := chi.NewRouter()
 
 	mux.Use(middleware.Recoverer)
@@ -81,19 +80,6 @@ func getRoutes() http.Handler {
 	mux.Handle("/static/*", http.StripPrefix("/static", fileServer))
 
 	return mux
-}
-
-func NoSurf(next http.Handler) http.Handler {
-	csrfHandler := nosurf.New(next)
-
-	csrfHandler.SetBaseCookie(http.Cookie{
-		HttpOnly: true,
-		Path:     "/",
-		Secure:   app.InProduction,
-		SameSite: http.SameSiteLaxMode,
-	})
-
-	return csrfHandler
 }
 
 func SessionLoad(next http.Handler) http.Handler {
