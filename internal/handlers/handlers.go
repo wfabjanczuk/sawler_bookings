@@ -143,11 +143,14 @@ func (m *Repository) PostReservation(w http.ResponseWriter, r *http.Request) {
 	form.IsEmail("email")
 
 	if !form.Valid() {
-		http.Error(w, "Invalid form data", http.StatusSeeOther)
 		render.Template(w, r, "make-reservation.page.tmpl", &models.TemplateData{
 			Form: form,
 			Data: map[string]interface{}{
 				"reservation": reservation,
+			},
+			StringMap: map[string]string{
+				"start_date": sd,
+				"end_date":   ed,
 			},
 		})
 
@@ -479,4 +482,33 @@ func (m *Repository) ShowLogin(w http.ResponseWriter, r *http.Request) {
 	render.Template(w, r, "login.page.tmpl", &models.TemplateData{
 		Form: forms.New(nil),
 	})
+}
+
+func (m *Repository) PostShowLogin(w http.ResponseWriter, r *http.Request) {
+	_ = m.App.Session.RenewToken(r.Context())
+
+	err := r.ParseForm()
+	if err != nil {
+		helpers.ServerError(w, err)
+		return
+	}
+
+	form := forms.New(r.PostForm)
+	form.Required("email", "password")
+	if !form.Valid() {
+		m.App.Session.Put(r.Context(), "error", "Invalid email or password")
+		http.Redirect(w, r, "/user/login", http.StatusSeeOther)
+		return
+	}
+
+	id, _, err := m.DB.Authenticate(r.Form.Get("email"), r.Form.Get("password"))
+	if err != nil {
+		m.App.Session.Put(r.Context(), "error", "Invalid email or password")
+		http.Redirect(w, r, "/user/login", http.StatusSeeOther)
+		return
+	}
+
+	m.App.Session.Put(r.Context(), "user_id", id)
+	m.App.Session.Put(r.Context(), "flash", "Successfully logged in")
+	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
