@@ -484,9 +484,12 @@ func (m *Repository) ShowLogin(w http.ResponseWriter, r *http.Request) {
 }
 
 func (m *Repository) PostShowLogin(w http.ResponseWriter, r *http.Request) {
-	_ = m.App.Session.RenewToken(r.Context())
+	err := m.App.Session.RenewToken(r.Context())
+	if err != nil {
+		m.App.ErrorLog.Println(err)
+	}
 
-	err := r.ParseForm()
+	err = r.ParseForm()
 	if err != nil {
 		helpers.ServerError(w, err)
 		return
@@ -518,4 +521,19 @@ func (m *Repository) PostShowLogin(w http.ResponseWriter, r *http.Request) {
 	m.App.Session.Put(r.Context(), "user_id", id)
 	m.App.Session.Put(r.Context(), "flash", "Successfully logged in")
 	http.Redirect(w, r, "/", http.StatusSeeOther)
+}
+
+func (m *Repository) Logout(w http.ResponseWriter, r *http.Request) {
+	err := m.App.Session.Destroy(r.Context())
+	if err != nil {
+		m.App.ErrorLog.Println(err)
+	}
+
+	err = m.App.Session.RenewToken(r.Context())
+	if err != nil {
+		m.App.ErrorLog.Println(err)
+	}
+
+	m.App.Session.Put(r.Context(), "flash", "Successfully logged out")
+	http.Redirect(w, r, "/user/login", http.StatusSeeOther)
 }
