@@ -33,6 +33,11 @@ func TestMain(m *testing.M) {
 
 	app.Session = session
 
+	app.MailChannel = make(chan models.MailData)
+	defer close(app.MailChannel)
+
+	listenForMail()
+
 	tc, err := CreateTestTemplateCache()
 
 	if err != nil {
@@ -122,4 +127,12 @@ func CreateTestTemplateCache() (map[string]*template.Template, error) {
 	}
 
 	return myCache, nil
+}
+
+func listenForMail() {
+	go func() {
+		for {
+			_ = <-app.MailChannel
+		}
+	}()
 }
