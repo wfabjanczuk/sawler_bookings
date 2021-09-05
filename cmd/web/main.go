@@ -4,6 +4,7 @@ import (
 	"encoding/gob"
 	"fmt"
 	"github.com/alexedwards/scs/v2"
+	"github.com/joho/godotenv"
 	"github.com/wfabjanczuk/sawler_bookings/internal/config"
 	"github.com/wfabjanczuk/sawler_bookings/internal/driver"
 	"github.com/wfabjanczuk/sawler_bookings/internal/handlers"
@@ -63,9 +64,13 @@ func initialize() (*driver.DB, error) {
 
 	app.Session = session
 
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+
 	log.Println("Connecting to the database...")
-	// TODO: Get connection string from env variables
-	db, err := driver.ConnectSQL("")
+	db, err := driver.ConnectSQL(os.Getenv("DSN"))
 
 	if err != nil {
 		log.Fatal("Cannot connect to database! Dying...")

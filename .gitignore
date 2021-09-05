@@ -134,3 +134,4 @@ modules.xml
 
 bookings
 database.yml
+.env

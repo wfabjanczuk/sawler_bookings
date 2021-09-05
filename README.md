@@ -10,6 +10,7 @@ This is a repository following Udemy course [Building Modern Web Applications wi
   - [govalidator](https://github.com/asaskevich/govalidator)
   - [pgx: PostgreSQL Driver and Toolkit](https://github.com/jackc/pgx)
   - [Go Simple Mail](https://github.com/xhit/go-simple-mail)
+  - [GoDotEnv](https://github.com/joho/godotenv)
 - Frontend uses:
   - [Bootstrap 5](https://getbootstrap.com)
   - [Vanilla JS Datepicker](https://github.com/mymth/vanillajs-datepicker)
