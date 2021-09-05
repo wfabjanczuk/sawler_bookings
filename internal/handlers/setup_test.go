@@ -51,7 +51,7 @@ func TestMain(m *testing.M) {
 
 var app config.AppConfig
 var session *scs.SessionManager
-var pathToTemplates = "./../../templates"
+var pathToTemplates = "./../../templates/pages"
 var functions = template.FuncMap{}
 
 func getRoutes() http.Handler {

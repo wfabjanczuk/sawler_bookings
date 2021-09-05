@@ -191,41 +191,39 @@ func (m *Repository) PostReservation(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	htmlMessage := fmt.Sprintf(`
-<p><strong>Reservation confirmation</strong></p>
-<p>Dear %s,</p>
-<p>This is to confirm your reservation from %s to %s in the %s room.</p>`,
-		reservation.FirstName,
-		reservation.StartDate.Format(layout),
-		reservation.EndDate.Format(layout),
-		reservation.Room.RoomName,
-	)
-
 	message := models.MailData{
-		To:      reservation.Email,
-		From:    "me@here.com",
-		Subject: "Reservation confirmation",
-		Content: htmlMessage,
+		To:            reservation.Email,
+		From:          "me@here.com",
+		Subject:       "Reservation confirmation",
+		Template:      "basic.html",
+		TemplateTitle: "Reservation confirmation",
+		TemplateBody: fmt.Sprintf(
+			`<p class="text-center">Dear %s,</p>
+<p class="text-center">This is to confirm your reservation from %s to %s in the %s room.</p>`,
+			reservation.FirstName,
+			reservation.StartDate.Format(layout),
+			reservation.EndDate.Format(layout),
+			reservation.Room.RoomName,
+		),
 	}
 
 	m.App.MailChannel <- message
 
-	htmlMessage = fmt.Sprintf(`
-<p><strong>New reservation</strong></p>
-<p>Guest %s %s (email: %s) reserved %s room from %s to %s.</p>`,
-		reservation.FirstName,
-		reservation.LastName,
-		reservation.Email,
-		reservation.Room.RoomName,
-		reservation.StartDate.Format(layout),
-		reservation.EndDate.Format(layout),
-	)
-
 	message = models.MailData{
-		To:      reservation.Email,
-		From:    "property@owner.com",
-		Subject: "New reservation",
-		Content: htmlMessage,
+		To:            reservation.Email,
+		From:          "property@owner.com",
+		Subject:       "New reservation",
+		Template:      "basic.html",
+		TemplateTitle: "New reservation",
+		TemplateBody: fmt.Sprintf(
+			`<p class="text-center">Guest %s %s (email: %s) reserved %s room from %s to %s.</p>`,
+			reservation.FirstName,
+			reservation.LastName,
+			reservation.Email,
+			reservation.Room.RoomName,
+			reservation.StartDate.Format(layout),
+			reservation.EndDate.Format(layout),
+		),
 	}
 
 	m.App.MailChannel <- message
