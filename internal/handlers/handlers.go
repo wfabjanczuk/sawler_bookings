@@ -392,7 +392,6 @@ func (m *Repository) ReservationSummary(w http.ResponseWriter, r *http.Request) 
 		m.App.ErrorLog.Println("Cannot get item from session")
 		m.App.Session.Put(r.Context(), "error", "Can't get reservation from session")
 		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
-
 		return
 	}
 
@@ -495,16 +494,24 @@ func (m *Repository) PostShowLogin(w http.ResponseWriter, r *http.Request) {
 
 	form := forms.New(r.PostForm)
 	form.Required("email", "password")
+	form.IsEmail("email")
+
 	if !form.Valid() {
 		m.App.Session.Put(r.Context(), "error", "Invalid email or password")
-		http.Redirect(w, r, "/user/login", http.StatusSeeOther)
+		form.Set("password", "")
+		render.Template(w, r, "login.page.tmpl", &models.TemplateData{
+			Form: form,
+		})
 		return
 	}
 
 	id, _, err := m.DB.Authenticate(r.Form.Get("email"), r.Form.Get("password"))
 	if err != nil {
 		m.App.Session.Put(r.Context(), "error", "Invalid email or password")
-		http.Redirect(w, r, "/user/login", http.StatusSeeOther)
+		form.Set("password", "")
+		render.Template(w, r, "login.page.tmpl", &models.TemplateData{
+			Form: form,
+		})
 		return
 	}
 

@@ -15,7 +15,7 @@
                         <div class="col">
                             <label for="email" class="form-label">Email:</label>
                             {{with .Form.Errors.GetFirst "email"}}<label class="text-danger">{{.}}</label>{{end}}
-                            <input required type="text" name="email" class="form-control {{if .Form.Errors.GetFirst "email"}}is-invalid{{end}}" id="email">
+                            <input required type="text" name="email" class="form-control {{if .Form.Errors.GetFirst "email"}}is-invalid{{end}}" id="email" value="{{.Form.Get "email"}}">
                         </div>
                     </div>
                     <div class="row my-3">
