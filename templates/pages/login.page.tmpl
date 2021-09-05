@@ -1,0 +1,36 @@
+{{template "base" .}}
+
+{{define "content"}}
+
+    <div class="container">
+        <div class="row">
+            <div class="col-3"></div>
+            <div class="col-6">
+                <h1 class="text-center mt-4">Login</h1>
+
+                <form action="/user/login" method="POST" novalidate> <!-- class="needs-validation" -->
+                    <input type="hidden" name="csrf_token" value="{{.CsrfToken}}"/>
+
+                    <div class="row my-3">
+                        <div class="col">
+                            <label for="email" class="form-label">Email:</label>
+                            {{with .Form.Errors.GetFirst "email"}}<label class="text-danger">{{.}}</label>{{end}}
+                            <input required type="text" name="email" class="form-control {{if .Form.Errors.GetFirst "email"}}is-invalid{{end}}" id="email">
+                        </div>
+                    </div>
+                    <div class="row my-3">
+                        <div class="col">
+                            <label for="password" class="form-label">Password:</label>
+                            {{with .Form.Errors.GetFirst "password"}}<label class="text-danger">{{.}}</label>{{end}}
+                            <input required type="password" name="password" class="form-control {{if .Form.Errors.GetFirst "password"}}is-invalid{{end}}" id="password">
+                        </div>
+                    </div>
+
+                    <input type="submit" class="btn btn-primary my-3" value="Login">
+                </form>
+            </div>
+            <div class="col-3"></div>
+        </div>
+    </div>
+
+{{end}}
