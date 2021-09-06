@@ -19,3 +19,5 @@ The repository is following Udemy course [Building Modern Web Applications with 
   - [notie](https://github.com/jaredreich/notie)
   - [sweetalert2](https://sweetalert2.github.io)
   - [RoyalUI Admin Template (Bootstrap 4)](https://github.com/BootstrapDash/RoyalUI-Free-Bootstrap-Admin-Template)
+  - [Simple DataTables](https://github.com/fiduswriter/Simple-DataTables)
+  - [Emoji Favicons](https://favicon.io/emoji-favicons)

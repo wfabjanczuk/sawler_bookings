@@ -11,9 +11,16 @@ import (
 	"log"
 	"net/http"
 	"path/filepath"
+	"time"
 )
 
-var functions = template.FuncMap{}
+var functions = template.FuncMap{
+	"simpleDate": SimpleDate,
+}
+
+func SimpleDate(t time.Time) string {
+	return t.Format("2006-01-02")
+}
 
 var app *config.AppConfig
 var pathToTemplates = "./templates/pages"
