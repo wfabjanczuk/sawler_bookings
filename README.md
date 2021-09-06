@@ -1,6 +1,8 @@
-# Bookings
+# Fort Smythe Bed and Breakfast
 
-This is a repository following Udemy course [Building Modern Web Applications with Go (Golang)](https://www.udemy.com/course/building-modern-web-applications-with-go/) by professor [Trevor Sawler](https://github.com/tsawler).
+Golang learning project. Simple web application for making room reservations in a fictional residence. Consists of a page for clients and admin panel for the property owner.
+
+The repository is following Udemy course [Building Modern Web Applications with Go (Golang)](https://www.udemy.com/course/building-modern-web-applications-with-go) by professor [Trevor Sawler](https://github.com/tsawler).
 
 - Built in Go version 1.17
 - Backend uses:
@@ -16,3 +18,4 @@ This is a repository following Udemy course [Building Modern Web Applications wi
   - [Vanilla JS Datepicker](https://github.com/mymth/vanillajs-datepicker)
   - [notie](https://github.com/jaredreich/notie)
   - [sweetalert2](https://sweetalert2.github.io)
+  - [RoyalUI Admin Template (Bootstrap 4)](https://github.com/BootstrapDash/RoyalUI-Free-Bootstrap-Admin-Template)
