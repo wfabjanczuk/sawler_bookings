@@ -298,3 +298,36 @@ func (m *postgresDBRepo) NewReservations() ([]models.Reservation, error) {
 
 	return reservations, nil
 }
+
+func (m *postgresDBRepo) GetReservationById(id int) (models.Reservation, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), maxQueryTime)
+	defer cancel()
+
+	query := `select 
+	r.id, r.first_name, r.last_name, r.email, r.phone, r.start_date, r.end_date, r.room_id, r.created_at, r.updated_at, r.processed,
+	rm.id, rm.room_name
+	from reservation r left join room rm on r.room_id = rm.id where r.id = $1
+	order by r.start_date asc`
+
+	var r models.Reservation
+	var rm models.Room
+
+	err := m.DB.QueryRowContext(ctx, query, id).Scan(
+		&r.ID,
+		&r.FirstName,
+		&r.LastName,
+		&r.Email,
+		&r.Phone,
+		&r.StartDate,
+		&r.EndDate,
+		&r.RoomID,
+		&r.CreatedAt,
+		&r.UpdatedAt,
+		&r.Processed,
+		&rm.ID,
+		&rm.RoomName,
+	)
+	r.Room = rm
+
+	return r, err
+}
