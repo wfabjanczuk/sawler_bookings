@@ -336,8 +336,8 @@ func (m *postgresDBRepo) UpdateReservation(reservation models.Reservation) error
 	ctx, cancel := context.WithTimeout(context.Background(), maxQueryTime)
 	defer cancel()
 
-	statement := `update public.reservation r 
-	set r.first_name = $1, r.last_name = $2, r.email = $3, r.phone = $4, r.updated_at = $5 where r.id = $6`
+	statement := `update public.reservation
+	set first_name = $1, last_name = $2, email = $3, phone = $4, updated_at = $5 where id = $6`
 
 	_, err := m.DB.ExecContext(ctx, statement,
 		reservation.FirstName, reservation.LastName, reservation.Email, reservation.Phone, time.Now(), reservation.ID,
@@ -350,7 +350,7 @@ func (m *postgresDBRepo) UpdateReservationProcessed(reservationID, processed int
 	ctx, cancel := context.WithTimeout(context.Background(), maxQueryTime)
 	defer cancel()
 
-	statement := `update public.reservation r set processed = $1 where id = $2`
+	statement := `update public.reservation set processed = $1 where id = $2`
 
 	_, err := m.DB.ExecContext(ctx, statement, reservationID, processed)
 
