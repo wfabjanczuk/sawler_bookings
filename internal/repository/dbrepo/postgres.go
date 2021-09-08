@@ -331,3 +331,39 @@ func (m *postgresDBRepo) GetReservationById(id int) (models.Reservation, error) 
 
 	return r, err
 }
+
+func (m *postgresDBRepo) UpdateReservation(reservation models.Reservation) error {
+	ctx, cancel := context.WithTimeout(context.Background(), maxQueryTime)
+	defer cancel()
+
+	statement := `update public.reservation r 
+	set r.first_name = $1, r.last_name = $2, r.email = $3, r.phone = $4, r.updated_at = $5 where r.id = $6`
+
+	_, err := m.DB.ExecContext(ctx, statement,
+		reservation.FirstName, reservation.LastName, reservation.Email, reservation.Phone, time.Now(), reservation.ID,
+	)
+
+	return err
+}
+
+func (m *postgresDBRepo) UpdateReservationProcessed(reservationID, processed int) error {
+	ctx, cancel := context.WithTimeout(context.Background(), maxQueryTime)
+	defer cancel()
+
+	statement := `update public.reservation r set processed = $1 where id = $2`
+
+	_, err := m.DB.ExecContext(ctx, statement, reservationID, processed)
+
+	return err
+}
+
+func (m *postgresDBRepo) DeleteReservation(reservationID int) error {
+	ctx, cancel := context.WithTimeout(context.Background(), maxQueryTime)
+	defer cancel()
+
+	statement := `delete from public.reservation where id = $1`
+
+	_, err := m.DB.ExecContext(ctx, statement, reservationID)
+
+	return err
+}
