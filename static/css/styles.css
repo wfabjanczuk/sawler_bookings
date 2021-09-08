@@ -14,3 +14,29 @@
 .datepicker {
     z-index: 2000;
 }
+
+.carousel-inner .carousel-caption {
+    z-index: 10;
+}
+
+.carousel-inner .carousel-item {
+    height: 50vh;
+}
+
+.carousel-inner .carousel-item:after {
+    content: "";
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    background: #212529;
+    opacity: 0.5;
+}
+
+.carousel-inner .carousel-item img {
+    width: 100vw;
+    height: 100%;
+    object-fit: cover;
+}
