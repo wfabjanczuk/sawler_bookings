@@ -138,13 +138,7 @@ function RoomPage(roomID, csrfToken) {
     </form>
 </div>
 `;
-            const preConfirm = () => {
-                    return [
-                        document.getElementById('startDateModal').value,
-                        document.getElementById('endDateModal').value,
-                    ]
-                },
-                willOpen = () => {
+            const willOpen = () => {
                     let minDate = new Date();
                     minDate.setDate(minDate.getDate() + 1);
 
@@ -190,7 +184,6 @@ function RoomPage(roomID, csrfToken) {
             attention.custom({
                 title: 'Choose your dates',
                 msg: html,
-                preConfirm: preConfirm,
                 willOpen: willOpen,
                 didOpen: didOpen,
                 callback: callback,

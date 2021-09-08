@@ -8,45 +8,64 @@
     {{$res := index .Data "reservation"}}
     {{$src := index .StringMap "src"}}
     <div class="col-md-12">
-        <p>
-            <strong>Arrival:</strong> {{simpleDate $res.StartDate}} <br/>
-            <strong>Departure:</strong> {{simpleDate $res.EndDate}} <br/>
-            <strong>Room:</strong> {{$res.Room.RoomName}} <br/>
-        </p>
+        <div class="mb-4">
+            <div class="my-2"><strong>Arrival:</strong> {{simpleDate $res.StartDate}}</div>
+            <div class="my-2"><strong>Departure:</strong> {{simpleDate $res.EndDate}}</div>
+            <div class="my-2"><strong>Room:</strong> {{$res.Room.RoomName}}</div>
+        </div>
 
         <form action="/admin/reservations/{{$src}}/{{$res.ID}}" method="POST" novalidate> <!-- class="needs-validation" -->
             <input type="hidden" name="csrf_token" value="{{.CsrfToken}}"/>
 
-            <div class="row my-3">
-                <div class="col">
+            <div class="row my-2">
+                <div class="col my-2">
                     <label for="firstName" class="form-label font-weight-bold">First name:</label>
                     {{with .Form.Errors.GetFirst "first_name"}}<label class="text-danger">{{.}}</label>{{end}}
                     <input required type="text" name="first_name" class="form-control {{if .Form.Errors.GetFirst "first_name"}}is-invalid{{end}}" id="firstName" value="{{$res.FirstName}}">
                 </div>
             </div>
-            <div class="row my-3">
-                <div class="col">
+            <div class="row my-2">
+                <div class="col my-2">
                     <label for="lastName" class="form-label font-weight-bold">Last name:</label>
                     {{with .Form.Errors.GetFirst "last_name"}}<label class="text-danger">{{.}}</label>{{end}}
                     <input required type="text" name="last_name" class="form-control {{if .Form.Errors.GetFirst "last_name"}}is-invalid{{end}}" id="lastName" value="{{$res.LastName}}">
                 </div>
             </div>
-            <div class="row my-3">
-                <div class="col">
+            <div class="row my-2">
+                <div class="col my-2">
                     <label for="email" class="form-label font-weight-bold">Email:</label>
                     {{with .Form.Errors.GetFirst "email"}}<label class="text-danger">{{.}}</label>{{end}}
                     <input required type="text" name="email" class="form-control {{if .Form.Errors.GetFirst "email"}}is-invalid{{end}}" id="email" value="{{$res.Email}}">
                 </div>
             </div>
-            <div class="row my-3">
-                <div class="col">
+            <div class="row my-2">
+                <div class="col my-2">
                     <label for="phone" class="form-label font-weight-bold">Phone number:</label>
                     {{with .Form.Errors.GetFirst "phone"}}<label class="text-danger">{{.}}</label>{{end}}
                     <input required type="text" name="phone" class="form-control {{if .Form.Errors.GetFirst "phone"}}is-invalid{{end}}" id="phone" value="{{$res.Phone}}">
                 </div>
             </div>
-            <input type="submit" class="btn btn-primary my-3" value="Make reservation">
-            <a href="/admin/reservations-{{$src}}" class="btn btn-danger">Cancel</a>
+            <input type="submit" class="btn btn-primary my-4" value="Save reservation">
+            <a href="#" class="btn btn-success" onclick="processReservation()">Mark as processed</a>
+            <a href="/admin/reservations-{{$src}}" class="btn btn-secondary text-white">Cancel</a>
         </form>
     </div>
+{{end}}
+
+{{define "js"}}
+    {{$res := index .Data "reservation"}}
+    {{$src := index .StringMap "src"}}
+    <script>
+        function processReservation() {
+            attention.custom({
+                icon: "warning",
+                msg: "Do you want to mark the reservation as processed?",
+                callback: (result) => {
+                    if (result !== false) {
+                        window.location.href = "/admin/process-reservation/{{$src}}/{{$res.ID}}";
+                    }
+                }
+            })
+        }
+    </script>
 {{end}}

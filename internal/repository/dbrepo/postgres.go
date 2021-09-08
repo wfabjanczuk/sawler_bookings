@@ -352,7 +352,7 @@ func (m *postgresDBRepo) UpdateReservationProcessed(reservationID, processed int
 
 	statement := `update public.reservation set processed = $1 where id = $2`
 
-	_, err := m.DB.ExecContext(ctx, statement, reservationID, processed)
+	_, err := m.DB.ExecContext(ctx, statement, processed, reservationID)
 
 	return err
 }
