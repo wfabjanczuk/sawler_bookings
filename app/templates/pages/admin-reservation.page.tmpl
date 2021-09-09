@@ -14,7 +14,7 @@
             <div class="my-2"><strong>Room:</strong> {{$res.Room.RoomName}}</div>
         </div>
 
-        <form action="/admin/reservations/{{$src}}/{{$res.ID}}" method="POST" novalidate> <!-- class="needs-validation" -->
+        <form action="/admin/reservations/{{$src}}/{{$res.ID}}" method="POST" class="reservationEditForm" novalidate> <!-- class="needs-validation" -->
             <input type="hidden" name="csrf_token" value="{{.CsrfToken}}"/>
 
             <div class="row my-2">
@@ -45,9 +45,12 @@
                     <input required type="text" name="phone" class="form-control {{if .Form.Errors.GetFirst "phone"}}is-invalid{{end}}" id="phone" value="{{$res.Phone}}">
                 </div>
             </div>
-            <input type="submit" class="btn btn-primary my-4" value="Save reservation">
-            <a href="#" class="btn btn-success" onclick="processReservation()">Mark as processed</a>
-            <a href="/admin/reservations-{{$src}}" class="btn btn-secondary text-white">Cancel</a>
+            <div class="d-flex my-5">
+                <input type="submit" class="btn btn-primary mr-1" value="Save reservation">
+                <button type="button" class="btn btn-success mx-1" onclick="processReservation()">Mark as processed</button>
+                <a href="/admin/reservations-{{$src}}" class="btn btn-secondary text-white mx-1">Cancel</a>
+                <button type="button"  class="btn btn-danger deleteReservationButton" onclick="deleteReservation()">Delete</button>
+            </div>
         </form>
     </div>
 {{end}}
@@ -59,10 +62,22 @@
         function processReservation() {
             attention.custom({
                 icon: "warning",
-                msg: "Do you want to mark the reservation as processed?",
+                msg: "Do you want to <b>mark</b> the reservation <b>as processed</b>?",
                 callback: (result) => {
                     if (result !== false) {
                         window.location.href = "/admin/process-reservation/{{$src}}/{{$res.ID}}";
+                    }
+                }
+            })
+        }
+
+        function deleteReservation() {
+            attention.custom({
+                icon: "warning",
+                msg: "Do you want to <b>delete</b> the reservation?",
+                callback: (result) => {
+                    if (result !== false) {
+                        window.location.href = "/admin/delete-reservation/{{$src}}/{{$res.ID}}";
                     }
                 }
             })

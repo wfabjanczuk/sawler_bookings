@@ -50,6 +50,7 @@ func routes(app *config.AppConfig) http.Handler {
 		mux.Post("/reservations/{src}/{id}", handlers.Repo.AdminPostReservation)
 
 		mux.Get("/process-reservation/{src}/{id}", handlers.Repo.AdminProcessReservation)
+		mux.Get("/delete-reservation/{src}/{id}", handlers.Repo.AdminDeleteReservation)
 	})
 
 	fileServer := http.FileServer(http.Dir("./static/"))

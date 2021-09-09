@@ -1,3 +1,11 @@
 .notie-container {
     z-index: 2000;
 }
+
+.reservationEditForm {
+    max-width: 800px;
+}
+
+.deleteReservationButton {
+    margin-left: auto;
+}
