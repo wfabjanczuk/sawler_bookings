@@ -1,0 +1,7 @@
+development:
+  dialect: postgres
+  database: bookings
+  user: postgres
+  password: postgres_password
+  host: bookings_database
+  pool: 5

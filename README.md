@@ -4,6 +4,18 @@ Golang learning project. Simple web application for making room reservations in 
 
 The repository is following Udemy course [Building Modern Web Applications with Go (Golang)](https://www.udemy.com/course/building-modern-web-applications-with-go) by professor [Trevor Sawler](https://github.com/tsawler).
 
+## Development
+
+Run: `docker-compose up`
+
+When the application has started, make sure database migrations have been applied by executing: 
+
+`docker exec -ti bookings_backend bash -c "soda migrate"`
+
+By default the application is on `localhost:8080` and the database on `localhost:54321`
+
+## Dependencies
+
 - Built in Go version 1.17
 - Backend uses:
   - [chi router](https://github.com/go-chi/chi)
@@ -13,6 +25,8 @@ The repository is following Udemy course [Building Modern Web Applications with 
   - [pgx: PostgreSQL Driver and Toolkit](https://github.com/jackc/pgx)
   - [Go Simple Mail](https://github.com/xhit/go-simple-mail)
   - [GoDotEnv](https://github.com/joho/godotenv)
+  - [Soda CLI](https://github.com/gobuffalo/pop)
+  - [Go Compile Daemon](https://github.com/githubnemo/CompileDaemon)
 - Frontend uses:
   - [Bootstrap 5](https://getbootstrap.com)
   - [Vanilla JS Datepicker](https://github.com/mymth/vanillajs-datepicker)

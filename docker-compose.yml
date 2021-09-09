@@ -1,0 +1,35 @@
+version: '3'
+
+services:
+  bookings_database:
+    image: postgres:latest
+    hostname: bookings_database
+    container_name: bookings_database
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres_password
+      POSTGRES_DB: bookings
+    ports:
+      - "54321:5432"
+    volumes:
+      - ./db/data/:/var/lib/postgresql/data/
+
+  bookings_backend:
+    image: golang:1.17
+    hostname: bookings_backend
+    container_name: bookings_backend
+    working_dir: /usr/local/go/src/app
+    entrypoint: ["bash", "-c"]
+    command:
+      - |
+        go install github.com/gobuffalo/pop/soda@latest
+        soda migrate
+        go install github.com/githubnemo/CompileDaemon@latest
+        CompileDaemon -log-prefix=false -build='go build -o bookings ./cmd/web' -command='./bookings'
+    volumes:
+      - ./app:/usr/local/go/src/app:rw
+    ports:
+      - "8080:8080"
+    depends_on:
+      - bookings_database

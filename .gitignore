@@ -132,6 +132,5 @@ modules.xml
 
 # End of https://www.toptal.com/developers/gitignore/api/go,jetbrains+all,visualstudiocode
 
-bookings
-database.yml
-.env
+app/bookings
+db
