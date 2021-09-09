@@ -124,7 +124,7 @@ function RoomPage(roomID, csrfToken) {
         checkAvailabilityButton.addEventListener('click', function () {
             const html = `
 <div class="container">
-    <form id="check-availability" action="" method="POST" novalidate class="needs-validation">
+    <form id="check-availability" action="" method="POST" novalidate class="needs-validation" autocomplete="off">
         <div class="row my-3" id="reservation-dates-modal">
             <div class="col-sm-6">
                 <label for="startDateModal" class="form-label">Starting date</label>
