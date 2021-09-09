@@ -17,8 +17,6 @@ import (
 	"time"
 )
 
-const portNumber = 8080
-
 var app config.AppConfig
 var session *scs.SessionManager
 
@@ -35,9 +33,9 @@ func main() {
 	fmt.Println("Starting mail listener")
 	listenForMail()
 
-	fmt.Printf("Starting application on port %d\n", portNumber)
+	addr := fmt.Sprintf(":%s", os.Getenv("PORT"))
+	fmt.Printf("Starting application on %s\n", addr)
 
-	addr := fmt.Sprintf(":%d", portNumber)
 	srv := &http.Server{
 		Addr:    addr,
 		Handler: routes(&app),
