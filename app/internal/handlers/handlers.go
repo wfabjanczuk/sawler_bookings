@@ -633,6 +633,14 @@ func (m *Repository) AdminPostReservation(w http.ResponseWriter, r *http.Request
 	http.Redirect(w, r, fmt.Sprintf("/admin/reservations-%s", src), http.StatusSeeOther)
 }
 
+func prevalidateYearAndMonthQuery(year, month string) error {
+	if len(year) != 4 || (len(month) != 2 && len(month) != 1) || year[0] == '0' || month[0] == '0' {
+		return errors.New("invalid year or month")
+	}
+
+	return nil
+}
+
 func (m *Repository) getCalendarTime(r *http.Request) (time.Time, error) {
 	var year, month int
 	var err error
@@ -646,14 +654,23 @@ func (m *Repository) getCalendarTime(r *http.Request) (time.Time, error) {
 		year = m.App.Session.GetInt(r.Context(), "calendar_current_year")
 		month = m.App.Session.GetInt(r.Context(), "calendar_current_month")
 	} else {
-		year, err = strconv.Atoi(r.URL.Query().Get("y"))
-		if err != nil {
+		yearString := r.URL.Query().Get("y")
+		monthString := r.URL.Query().Get("m")
+
+		if err = prevalidateYearAndMonthQuery(yearString, monthString); err != nil {
 			return now, err
 		}
 
-		month, err = strconv.Atoi(r.URL.Query().Get("m"))
-		if err != nil {
+		if year, err = strconv.Atoi(yearString); err != nil {
 			return now, err
+		}
+
+		if month, err = strconv.Atoi(monthString); err != nil {
+			return now, err
+		}
+
+		if month > 12 {
+			return now, errors.New("invalid month number")
 		}
 	}
 
@@ -830,5 +847,24 @@ func (m *Repository) AdminDeleteReservation(w http.ResponseWriter, r *http.Reque
 }
 
 func (m *Repository) AdminPostReservationsCalendar(w http.ResponseWriter, r *http.Request) {
+	err := r.ParseForm()
+	if err != nil {
+		helpers.ServerError(w, err)
+		return
+	}
 
+	current_year, err := strconv.Atoi(r.Form.Get("y"))
+	if err != nil {
+		helpers.ServerError(w, err)
+		return
+	}
+
+	current_month, err := strconv.Atoi(r.Form.Get("m"))
+	if err != nil {
+		helpers.ServerError(w, err)
+		return
+	}
+
+	m.App.Session.Put(r.Context(), "flash", "Calendar changes saved")
+	http.Redirect(w, r, fmt.Sprintf("/admin/reservations-calendar?y=%d&m=%d", current_year, current_month), http.StatusSeeOther)
 }

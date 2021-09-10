@@ -30,6 +30,9 @@
 
             <form method="POST" action="/admin/reservations-calendar">
                 <input type="hidden" name="csrf_token" value="{{.CsrfToken}}"/>
+                <input type="hidden" name="y" value="{{$currentYear}}"/>
+                <input type="hidden" name="m" value="{{$currentMonth}}"/>
+
                 <div class="d-flex flex-wrap calendars">
                     {{range $room := $rooms}}
                         {{$blocks := index $.Data (printf "block_map_%d" $room.ID)}}
