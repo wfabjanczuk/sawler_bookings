@@ -48,6 +48,7 @@ func main() {
 func initialize() (*driver.DB, error) {
 	gob.Register(models.Reservation{})
 	gob.Register(models.User{})
+	gob.Register(map[string]int{})
 
 	app.MailChannel = make(chan models.MailData)
 	app.InProduction = false

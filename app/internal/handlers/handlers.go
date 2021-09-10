@@ -675,9 +675,8 @@ func getMonthWeeks(firstDayOfMonth, lastDayOfMonth time.Time, firstWeekday time.
 	}
 
 	week = append(week, firstDayOfMonth.Day())
-	endDate := getNextDay(lastDayOfMonth)
 
-	for day := getNextDay(firstDayOfMonth); !day.Equal(endDate); day = getNextDay(day) {
+	for day := nextDay(firstDayOfMonth); !day.After(lastDayOfMonth); day = nextDay(day) {
 		if day.Weekday() == firstWeekday {
 			weeks = append(weeks, week)
 			week = []int{}
@@ -693,7 +692,7 @@ func getMonthWeeks(firstDayOfMonth, lastDayOfMonth time.Time, firstWeekday time.
 	return weeks
 }
 
-func getNextDay(date time.Time) time.Time {
+func nextDay(date time.Time) time.Time {
 	return date.AddDate(0, 0, 1)
 }
 
@@ -726,16 +725,50 @@ func (m *Repository) AdminReservationsCalendar(w http.ResponseWriter, r *http.Re
 	rooms, err := m.DB.AllRooms()
 	if err != nil {
 		helpers.ServerError(w, err)
+		return
+	}
+
+	data := map[string]interface{}{
+		"now":      now,
+		"rooms":    rooms,
+		"weeks":    getMonthWeeks(firstDayOfMonth, lastDayOfMonth, time.Sunday),
+		"weekDays": getWeekDays(),
+	}
+
+	for _, room := range rooms {
+		reservationMap := make(map[string]int)
+		blockMap := make(map[string]int)
+
+		for day := firstDayOfMonth; !day.After(lastDayOfMonth); day = nextDay(day) {
+			reservationMap[day.Format("2006-01-2")] = 0
+			blockMap[day.Format("2006-01-2")] = 0
+		}
+
+		restrictions, err := m.DB.GetRoomRestrictionsByDate(room.ID, firstDayOfMonth, lastDayOfMonth)
+		if err != nil {
+			helpers.ServerError(w, err)
+			return
+		}
+
+		for _, restriction := range restrictions {
+			for day := restriction.StartDate; !day.After(restriction.EndDate); day = nextDay(day) {
+				if restriction.ReservationID > 0 {
+					reservationMap[day.Format("2006-01-2")] = restriction.ReservationID
+				} else {
+					blockMap[day.Format("2006-01-2")] = restriction.RestrictionID
+				}
+			}
+		}
+
+		data[fmt.Sprintf("reservation_map_%d", room.ID)] = reservationMap
+		data[fmt.Sprintf("block_map_%d", room.ID)] = blockMap
+
+		m.App.Session.Put(r.Context(), fmt.Sprintf("block_map_%d", room.ID), blockMap)
 	}
 
 	render.Template(w, r, "admin-reservations-calendar.page.tmpl", &models.TemplateData{
 		StringMap: getCalendarStringMap(previous, now, next),
-		Data: map[string]interface{}{
-			"now":      now,
-			"rooms":    rooms,
-			"weeks":    getMonthWeeks(firstDayOfMonth, lastDayOfMonth, time.Sunday),
-			"weekDays": getWeekDays(),
-		},
+		Data:      data,
 	})
 }
 

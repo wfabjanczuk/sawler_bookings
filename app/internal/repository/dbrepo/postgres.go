@@ -404,3 +404,45 @@ func (m *postgresDBRepo) AllRooms() ([]models.Room, error) {
 
 	return rooms, nil
 }
+
+func (m *postgresDBRepo) GetRoomRestrictionsByDate(roomID int, startDate, endDate time.Time) ([]models.RoomRestriction, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), maxQueryTime)
+	defer cancel()
+
+	var roomRestrictions []models.RoomRestriction
+
+	query := `select id, coalesce(reservation_id, 0), restriction_id, room_id, start_date, end_date, created_at, updated_at
+	from room_restriction where $1 <= start_date and end_date <= $2 and room_id = $3 order by start_date asc`
+
+	rows, err := m.DB.QueryContext(ctx, query, startDate, endDate, roomID)
+	if err != nil {
+		return roomRestrictions, err
+	}
+
+	for rows.Next() {
+		var rr models.RoomRestriction
+
+		err := rows.Scan(
+			&rr.ID,
+			&rr.ReservationID,
+			&rr.RestrictionID,
+			&rr.RoomID,
+			&rr.StartDate,
+			&rr.EndDate,
+			&rr.CreatedAt,
+			&rr.UpdatedAt,
+		)
+
+		if err != nil {
+			return roomRestrictions, err
+		}
+
+		roomRestrictions = append(roomRestrictions, rr)
+	}
+
+	if err = rows.Err(); err != nil {
+		return roomRestrictions, err
+	}
+
+	return roomRestrictions, nil
+}

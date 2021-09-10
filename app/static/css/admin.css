@@ -27,6 +27,6 @@
     margin-right: 0;
 }
 
-.weekDayWidth {
+.calendar td {
     width: 14.2857%;
 }

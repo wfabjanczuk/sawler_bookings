@@ -9,18 +9,20 @@
     {{$rooms := index .Data "rooms"}}
     {{$weeks := index .Data "weeks"}}
     {{$weekDays := index .Data "weekDays"}}
+    {{$currentMonth := index .StringMap "current_month"}}
+    {{$currentYear := index .StringMap "current_month_year"}}
 
     <div class="col-md-12">
         <div class="text-center">
             <div class="d-flex justify-content-between align-content-center calendar mt-3 mb-5">
-                <a class="btn btn-sm btn-outline-secondary"
+                <a class="btn btn-sm btn-outline-secondary d-flex align-items-center"
                    href="/admin/reservations-calendar?y={{index .StringMap "previous_month_year"}}&m={{index .StringMap "previous_month"}}">
                     &lt;&lt;
                 </a>
                 <div class="display-4">
                     {{formatDate $now "January 2006"}}
                 </div>
-                <a class="btn btn-sm btn-outline-secondary"
+                <a class="btn btn-sm btn-outline-secondary d-flex align-items-center"
                    href="/admin/reservations-calendar?y={{index .StringMap "next_month_year"}}&m={{index .StringMap "next_month"}}">
                     &gt;&gt;
                 </a>
@@ -34,7 +36,7 @@
                         <div class="">
                             <table class="table table-bordered table-sm">
                                 {{range $weekDay := $weekDays}}
-                                    <td class="table-info border-dark text-center weekDayWidth">
+                                    <td class="table-info border-dark text-center">
                                         {{$weekDay}}
                                     </td>
                                 {{end}}

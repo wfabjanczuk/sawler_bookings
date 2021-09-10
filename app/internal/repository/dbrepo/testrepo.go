@@ -85,3 +85,7 @@ func (m *testDBRepo) UpdateReservationProcessed(reservationID, processed int) er
 func (m *testDBRepo) AllRooms() ([]models.Room, error) {
 	return []models.Room{}, nil
 }
+
+func (m *testDBRepo) GetRoomRestrictionsByDate(roomID int, startDate, endDate time.Time) ([]models.RoomRestriction, error) {
+	return []models.RoomRestriction{}, nil
+}
