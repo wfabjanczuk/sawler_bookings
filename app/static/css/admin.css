@@ -15,11 +15,12 @@
 }
 
 .calendar {
-    min-width: 720px;
-    max-width: 720px;
+    min-width: 640px;
+    max-width: 640px;
 }
 
 .calendars .calendar {
+    margin-top: 3rem;
     margin-right: 4rem;
 }
 
@@ -29,5 +30,5 @@
 
 .calendar td {
     width: 14.2857%;
-    height: 2.5rem;
+    height: 2.25rem;
 }

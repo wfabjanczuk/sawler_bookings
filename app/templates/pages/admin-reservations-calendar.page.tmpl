@@ -14,7 +14,7 @@
 
     <div class="col-md-12">
         <div class="text-center">
-            <div class="d-flex justify-content-between align-content-center calendar mt-3 mb-5">
+            <div class="d-flex justify-content-between align-content-center calendar my-3">
                 <a class="btn btn-sm btn-outline-secondary d-flex justify-content-center align-items-center"
                    href="/admin/reservations-calendar?y={{index .StringMap "previous_month_year"}}&m={{index .StringMap "previous_month"}}">
                     &lt;&lt;
@@ -28,92 +28,98 @@
                 </a>
             </div>
 
-            <div class="d-flex flex-wrap calendars">
-                {{range $room := $rooms}}
-                    {{$blocks := index $.Data (printf "block_map_%d" $room.ID)}}
-                    {{$reservations := index $.Data (printf "reservation_map_%d" $room.ID)}}
+            <form method="POST" action="/admin/reservations-calendar">
+                <input type="hidden" name="csrf_token" value="{{.CsrfToken}}"/>
+                <div class="d-flex flex-wrap calendars">
+                    {{range $room := $rooms}}
+                        {{$blocks := index $.Data (printf "block_map_%d" $room.ID)}}
+                        {{$reservations := index $.Data (printf "reservation_map_%d" $room.ID)}}
 
-                    <div class="calendar">
-                        <div class="display-5 my-4">{{$room.RoomName}}</div>
+                        <div class="calendar">
+                            <div class="display-5 my-4">{{$room.RoomName}}</div>
 
-                        <div class="">
-                            <table class="table table-bordered table-sm">
-                                {{range $weekDay := $weekDays}}
-                                    <td class="table-secondary border-dark text-center">
-                                        {{$weekDay}}
-                                    </td>
-                                {{end}}
-                                {{range $week := $weeks}}
-                                    <tr>
-                                        {{range $day := $week}}
-                                            {{if not $day}}
-                                                <td class="border-0 bg-light"></td>
-                                            {{else}}
-                                                {{$formattedDate := printf "%s-%s-%d" $currentYear $currentMonth $day}}
-                                                {{if gt (index $reservations $formattedDate) 0}}
-                                                    <td class="text-center border-secondary border-bottom-0 text-dark table-danger">
-                                                        {{$day}}
-                                                    </td>
+                            <div class="">
+                                <table class="table table-bordered table-sm">
+                                    {{range $weekDay := $weekDays}}
+                                        <td class="table-secondary border-dark text-center">
+                                            {{$weekDay}}
+                                        </td>
+                                    {{end}}
+                                    {{range $week := $weeks}}
+                                        <tr>
+                                            {{range $day := $week}}
+                                                {{if not $day}}
+                                                    <td class="border-0 bg-light"></td>
                                                 {{else}}
-                                                    {{if gt (index $blocks $formattedDate) 0}}
-                                                        <td class="text-center border-secondary border-bottom-0 text-dark table-primary">
+                                                    {{$formattedDate := printf "%s-%s-%d" $currentYear $currentMonth $day}}
+                                                    {{if gt (index $reservations $formattedDate) 0}}
+                                                        <td class="text-center border-secondary border-bottom-0 text-dark table-danger">
                                                             {{$day}}
                                                         </td>
                                                     {{else}}
-                                                        <td class="text-center border-secondary border-bottom-0 text-dark table-success">
-                                                            {{$day}}
-                                                        </td>
+                                                        {{if gt (index $blocks $formattedDate) 0}}
+                                                            <td class="text-center border-secondary border-bottom-0 text-dark table-primary">
+                                                                {{$day}}
+                                                            </td>
+                                                        {{else}}
+                                                            <td class="text-center border-secondary border-bottom-0 text-dark table-success">
+                                                                {{$day}}
+                                                            </td>
+                                                        {{end}}
                                                     {{end}}
-                                                {{end}}
 
+                                                {{end}}
                                             {{end}}
-                                        {{end}}
-                                    </tr>
-                                    <tr>
-                                        {{range $day := $week}}
-                                            {{if not $day}}
-                                                <td class="border-0 bg-light"></td>
-                                            {{else}}
-                                                {{$formattedDate := printf "%s-%s-%d" $currentYear $currentMonth $day}}
-                                                {{if gt (index $reservations $formattedDate) 0}}
-                                                    <td class="text-center border-secondary border-top-0">
-                                                        <a class="text-danger font-weight-bold"
-                                                           href="/admin/reservations/calendar/{{index $reservations $formattedDate}}">
-                                                            RESERVED
-                                                        </a>
-                                                    </td>
+                                        </tr>
+                                        <tr>
+                                            {{range $day := $week}}
+                                                {{if not $day}}
+                                                    <td class="border-0 bg-light"></td>
                                                 {{else}}
-                                                    {{if gt (index $blocks $formattedDate) 0}}
+                                                    {{$formattedDate := printf "%s-%s-%d" $currentYear $currentMonth $day}}
+                                                    {{if gt (index $reservations $formattedDate) 0}}
                                                         <td class="text-center border-secondary border-top-0">
-                                                            <div class="d-flex justify-content-center align-items-center">
-                                                                <input type="checkbox"
-                                                                       checked
-                                                                       name="remove_block_{{$room.ID}}_{{$formattedDate}}"
-                                                                       value="{{index $blocks $formattedDate}}"
-                                                                >
-                                                            </div>
+                                                            <a class="text-danger font-weight-bold"
+                                                               href="/admin/reservations/calendar/{{index $reservations $formattedDate}}">
+                                                                R
+                                                            </a>
                                                         </td>
                                                     {{else}}
-                                                        <td class="text-center border-secondary border-top-0">
-                                                            <div class="d-flex justify-content-center align-items-center">
-                                                                <input type="checkbox"
-                                                                       name="add_block_{{$room.ID}}_{{$formattedDate}}"
-                                                                >
-                                                            </div>
-                                                        </td>
+                                                        {{if gt (index $blocks $formattedDate) 0}}
+                                                            <td class="text-center border-secondary border-top-0">
+                                                                <div class="d-flex justify-content-center align-items-center">
+                                                                    <input type="checkbox"
+                                                                           checked
+                                                                           name="remove_block_{{$room.ID}}_{{$formattedDate}}"
+                                                                           value="{{index $blocks $formattedDate}}"
+                                                                    >
+                                                                </div>
+                                                            </td>
+                                                        {{else}}
+                                                            <td class="text-center border-secondary border-top-0">
+                                                                <div class="d-flex justify-content-center align-items-center">
+                                                                    <input type="checkbox"
+                                                                           name="add_block_{{$room.ID}}_{{$formattedDate}}"
+                                                                    >
+                                                                </div>
+                                                            </td>
+                                                        {{end}}
                                                     {{end}}
                                                 {{end}}
                                             {{end}}
-                                        {{end}}
-                                    </tr>
-                                {{end}}
-                            </table>
+                                        </tr>
+                                    {{end}}
+                                </table>
+                            </div>
                         </div>
-                    </div>
-                {{end}}
-            </div>
+                    {{end}}
+                </div>
+                <div class="calendar text-left my-5">
+                    <input type="submit" class="btn btn-primary" value="Save changes">
+                </div>
+            </form>
         </div>
-        <div class="text-left my-5">
+        <div class="text-left my-4">
             <div class="my-2">Colors description:</div>
             <ul>
                 <li class="text-danger font-weight-bold">Reserved by guest</li>
