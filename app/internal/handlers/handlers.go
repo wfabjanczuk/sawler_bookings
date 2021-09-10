@@ -633,21 +633,28 @@ func (m *Repository) AdminPostReservation(w http.ResponseWriter, r *http.Request
 	http.Redirect(w, r, fmt.Sprintf("/admin/reservations-%s", src), http.StatusSeeOther)
 }
 
-func getCalendarTime(r *http.Request) (time.Time, error) {
+func (m *Repository) getCalendarTime(r *http.Request) (time.Time, error) {
+	var year, month int
+	var err error
 	now := time.Now().UTC()
 
 	if r.URL.Query().Get("y") == "" {
-		return now, nil
-	}
+		if m.App.Session.GetInt(r.Context(), "calendar_current_year") == 0 {
+			return now, nil
+		}
 
-	year, err := strconv.Atoi(r.URL.Query().Get("y"))
-	if err != nil {
-		return now, err
-	}
+		year = m.App.Session.GetInt(r.Context(), "calendar_current_year")
+		month = m.App.Session.GetInt(r.Context(), "calendar_current_month")
+	} else {
+		year, err = strconv.Atoi(r.URL.Query().Get("y"))
+		if err != nil {
+			return now, err
+		}
 
-	month, err := strconv.Atoi(r.URL.Query().Get("m"))
-	if err != nil {
-		return now, err
+		month, err = strconv.Atoi(r.URL.Query().Get("m"))
+		if err != nil {
+			return now, err
+		}
 	}
 
 	now = time.Date(year, time.Month(month), 1, 0, 0, 0, 0, time.UTC)
@@ -709,15 +716,27 @@ func getWeekDays() []string {
 }
 
 func (m *Repository) AdminReservationsCalendar(w http.ResponseWriter, r *http.Request) {
-	now, err := getCalendarTime(r)
+	now, err := m.getCalendarTime(r)
 	if err != nil {
 		m.App.ErrorLog.Println(err)
 	}
 
+	currentYear, currentMonth, _ := now.Date()
+
+	if r.URL.Query().Get("y") == "" {
+		http.Redirect(w, r,
+			fmt.Sprintf("/admin/reservations-calendar?y=%d&m=%d", currentYear, int(currentMonth)),
+			http.StatusSeeOther,
+		)
+		return
+	}
+
+	m.App.Session.Put(r.Context(), "calendar_current_year", currentYear)
+	m.App.Session.Put(r.Context(), "calendar_current_month", int(currentMonth))
+
 	next := now.AddDate(0, 1, 0)
 	previous := now.AddDate(0, -1, 0)
 
-	currentYear, currentMonth, _ := now.Date()
 	currentLocation := now.Location()
 	firstDayOfMonth := time.Date(currentYear, currentMonth, 1, 0, 0, 0, 0, currentLocation)
 	lastDayOfMonth := firstDayOfMonth.AddDate(0, 1, -1)
@@ -755,7 +774,7 @@ func (m *Repository) AdminReservationsCalendar(w http.ResponseWriter, r *http.Re
 				if restriction.ReservationID > 0 {
 					reservationMap[day.Format("2006-01-2")] = restriction.ReservationID
 				} else {
-					blockMap[day.Format("2006-01-2")] = restriction.RestrictionID
+					blockMap[day.Format("2006-01-2")] = restriction.ID
 				}
 			}
 		}
