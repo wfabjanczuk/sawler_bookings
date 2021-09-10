@@ -2,10 +2,31 @@
     z-index: 2000;
 }
 
+.reservationsList {
+    max-width: 1440px;
+}
+
 .reservationEditForm {
     max-width: 800px;
 }
 
 .deleteReservationButton {
     margin-left: auto;
+}
+
+.calendar {
+    min-width: 640px;
+    max-width: 640px;
+}
+
+.calendars .calendar {
+    margin-right: 4rem;
+}
+
+.calendar + .calendar {
+    margin-right: 0;
+}
+
+.weekDayWidth {
+    width: 14.2857%;
 }

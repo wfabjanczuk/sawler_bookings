@@ -5,21 +5,67 @@
 {{end}}
 
 {{define "content"}}
+    {{$now := index .Data "now"}}
+    {{$rooms := index .Data "rooms"}}
+    {{$weeks := index .Data "weeks"}}
+    {{$weekDays := index .Data "weekDays"}}
+
     <div class="col-md-12">
         <div class="text-center">
-            <div class="display-4">
-                {{index .StringMap "current_month"}} {{index .StringMap "current_month_year"}}
-            </div>
-
-            <div class="d-flex justify-content-between">
+            <div class="d-flex justify-content-between align-content-center calendar mt-3 mb-5">
                 <a class="btn btn-sm btn-outline-secondary"
                    href="/admin/reservations-calendar?y={{index .StringMap "previous_month_year"}}&m={{index .StringMap "previous_month"}}">
                     &lt;&lt;
                 </a>
+                <div class="display-4">
+                    {{formatDate $now "January 2006"}}
+                </div>
                 <a class="btn btn-sm btn-outline-secondary"
                    href="/admin/reservations-calendar?y={{index .StringMap "next_month_year"}}&m={{index .StringMap "next_month"}}">
                     &gt;&gt;
                 </a>
+            </div>
+
+            <div class="d-flex flex-wrap calendars">
+                {{range $room := $rooms}}
+                    <div class="calendar">
+                        <div class="display-5 my-4">{{$room.RoomName}}</div>
+
+                        <div class="">
+                            <table class="table table-bordered table-sm">
+                                {{range $weekDay := $weekDays}}
+                                    <td class="table-info border-dark text-center weekDayWidth">
+                                        {{$weekDay}}
+                                    </td>
+                                {{end}}
+                                {{range $week := $weeks}}
+                                    <tr class="table-secondary">
+                                        {{range $day := $week}}
+                                            {{if not $day}}
+                                                <td class="border-0 bg-light"></td>
+                                            {{else}}
+                                                <td class="text-center border-secondary border-bottom-0 text-dark">
+                                                    {{$day}}
+                                                </td>
+                                            {{end}}
+                                        {{end}}
+                                    </tr>
+                                    <tr>
+                                        {{range $day := $week}}
+                                            {{if not $day}}
+                                                <td class="border-0 bg-light"></td>
+                                            {{else}}
+                                                <td class="text-center border-secondary border-top-0">
+                                                    <input type="checkbox">
+                                                </td>
+                                            {{end}}
+                                        {{end}}
+                                    </tr>
+                                {{end}}
+                            </table>
+                        </div>
+                    </div>
+                {{end}}
             </div>
         </div>
     </div>

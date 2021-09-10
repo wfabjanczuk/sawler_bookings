@@ -367,3 +367,40 @@ func (m *postgresDBRepo) DeleteReservation(reservationID int) error {
 
 	return err
 }
+
+func (m *postgresDBRepo) AllRooms() ([]models.Room, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), maxQueryTime)
+	defer cancel()
+
+	var rooms []models.Room
+
+	query := `select rm.id, rm.room_name, rm.created_at, rm.updated_at from room rm order by rm.room_name asc`
+
+	rows, err := m.DB.QueryContext(ctx, query)
+	if err != nil {
+		return rooms, err
+	}
+
+	for rows.Next() {
+		var rm models.Room
+
+		err := rows.Scan(
+			&rm.ID,
+			&rm.RoomName,
+			&rm.CreatedAt,
+			&rm.UpdatedAt,
+		)
+
+		if err != nil {
+			return rooms, err
+		}
+
+		rooms = append(rooms, rm)
+	}
+
+	if err = rows.Err(); err != nil {
+		return rooms, err
+	}
+
+	return rooms, nil
+}

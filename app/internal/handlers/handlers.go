@@ -634,7 +634,7 @@ func (m *Repository) AdminPostReservation(w http.ResponseWriter, r *http.Request
 }
 
 func getCalendarTime(r *http.Request) (time.Time, error) {
-	now := time.Now()
+	now := time.Now().UTC()
 
 	if r.URL.Query().Get("y") == "" {
 		return now, nil
@@ -666,6 +666,49 @@ func getCalendarStringMap(previous, now, next time.Time) map[string]string {
 	}
 }
 
+func getMonthWeeks(firstDayOfMonth, lastDayOfMonth time.Time, firstWeekday time.Weekday) [][]int {
+	var weeks [][]int
+	var week []int
+
+	for i := int(firstDayOfMonth.Weekday()); i != int(firstWeekday); i = (i - 1) % 7 {
+		week = append(week, 0)
+	}
+
+	week = append(week, firstDayOfMonth.Day())
+	endDate := getNextDay(lastDayOfMonth)
+
+	for day := getNextDay(firstDayOfMonth); !day.Equal(endDate); day = getNextDay(day) {
+		if day.Weekday() == firstWeekday {
+			weeks = append(weeks, week)
+			week = []int{}
+		}
+
+		week = append(week, day.Day())
+	}
+
+	if len(week) > 0 {
+		weeks = append(weeks, week)
+	}
+
+	return weeks
+}
+
+func getNextDay(date time.Time) time.Time {
+	return date.AddDate(0, 0, 1)
+}
+
+func getWeekDays() []string {
+	return []string{
+		"Mon",
+		"Tue",
+		"Wed",
+		"Thu",
+		"Fri",
+		"Sat",
+		"Sun",
+	}
+}
+
 func (m *Repository) AdminReservationsCalendar(w http.ResponseWriter, r *http.Request) {
 	now, err := getCalendarTime(r)
 	if err != nil {
@@ -675,8 +718,24 @@ func (m *Repository) AdminReservationsCalendar(w http.ResponseWriter, r *http.Re
 	next := now.AddDate(0, 1, 0)
 	previous := now.AddDate(0, -1, 0)
 
+	currentYear, currentMonth, _ := now.Date()
+	currentLocation := now.Location()
+	firstDayOfMonth := time.Date(currentYear, currentMonth, 1, 0, 0, 0, 0, currentLocation)
+	lastDayOfMonth := firstDayOfMonth.AddDate(0, 1, -1)
+
+	rooms, err := m.DB.AllRooms()
+	if err != nil {
+		helpers.ServerError(w, err)
+	}
+
 	render.Template(w, r, "admin-reservations-calendar.page.tmpl", &models.TemplateData{
 		StringMap: getCalendarStringMap(previous, now, next),
+		Data: map[string]interface{}{
+			"now":      now,
+			"rooms":    rooms,
+			"weeks":    getMonthWeeks(firstDayOfMonth, lastDayOfMonth, time.Sunday),
+			"weekDays": getWeekDays(),
+		},
 	})
 }
 
