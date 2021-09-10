@@ -520,7 +520,7 @@ func (m *Repository) PostShowLogin(w http.ResponseWriter, r *http.Request) {
 
 	m.App.Session.Put(r.Context(), "user_id", id)
 	m.App.Session.Put(r.Context(), "flash", "Successfully logged in")
-	http.Redirect(w, r, "/", http.StatusSeeOther)
+	http.Redirect(w, r, "/admin/dashboard", http.StatusSeeOther)
 }
 
 func (m *Repository) Logout(w http.ResponseWriter, r *http.Request) {
@@ -633,8 +633,51 @@ func (m *Repository) AdminPostReservation(w http.ResponseWriter, r *http.Request
 	http.Redirect(w, r, fmt.Sprintf("/admin/reservations-%s", src), http.StatusSeeOther)
 }
 
+func getCalendarTime(r *http.Request) (time.Time, error) {
+	now := time.Now()
+
+	if r.URL.Query().Get("y") == "" {
+		return now, nil
+	}
+
+	year, err := strconv.Atoi(r.URL.Query().Get("y"))
+	if err != nil {
+		return now, err
+	}
+
+	month, err := strconv.Atoi(r.URL.Query().Get("m"))
+	if err != nil {
+		return now, err
+	}
+
+	now = time.Date(year, time.Month(month), 1, 0, 0, 0, 0, time.UTC)
+
+	return now, nil
+}
+
+func getCalendarStringMap(previous, now, next time.Time) map[string]string {
+	return map[string]string{
+		"previous_month":      previous.Format("01"),
+		"previous_month_year": previous.Format("2006"),
+		"current_month":       now.Format("01"),
+		"current_month_year":  now.Format("2006"),
+		"next_month":          next.Format("01"),
+		"next_month_year":     next.Format("2006"),
+	}
+}
+
 func (m *Repository) AdminReservationsCalendar(w http.ResponseWriter, r *http.Request) {
-	render.Template(w, r, "admin-reservations-calendar.page.tmpl", &models.TemplateData{})
+	now, err := getCalendarTime(r)
+	if err != nil {
+		m.App.ErrorLog.Println(err)
+	}
+
+	next := now.AddDate(0, 1, 0)
+	previous := now.AddDate(0, -1, 0)
+
+	render.Template(w, r, "admin-reservations-calendar.page.tmpl", &models.TemplateData{
+		StringMap: getCalendarStringMap(previous, now, next),
+	})
 }
 
 func (m *Repository) AdminProcessReservation(w http.ResponseWriter, r *http.Request) {
