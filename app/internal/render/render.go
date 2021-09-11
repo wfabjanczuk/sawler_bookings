@@ -17,8 +17,6 @@ import (
 var functions = template.FuncMap{
 	"simpleDate": SimpleDate,
 	"formatDate": FormatDate,
-	"iterate":    Iterate,
-	"add":        Add,
 }
 
 func SimpleDate(t time.Time) string {
@@ -27,20 +25,6 @@ func SimpleDate(t time.Time) string {
 
 func FormatDate(t time.Time, layout string) string {
 	return t.Format(layout)
-}
-
-func Iterate(count int) []int {
-	var items []int
-
-	for i := 0; i < count; i++ {
-		items = append(items, i)
-	}
-
-	return items
-}
-
-func Add(a, b int) int {
-	return a + b
 }
 
 var app *config.AppConfig

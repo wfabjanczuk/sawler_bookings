@@ -20,6 +20,8 @@ import (
 
 func TestMain(m *testing.M) {
 	gob.Register(models.Reservation{})
+	gob.Register(models.User{})
+	gob.Register(map[string]int{})
 
 	app.InProduction = false
 	app.InfoLog = log.New(os.Stdout, "[INFO] ", log.Ldate|log.Ltime)
@@ -57,7 +59,11 @@ func TestMain(m *testing.M) {
 var app config.AppConfig
 var session *scs.SessionManager
 var pathToTemplates = "./../../templates/pages"
-var functions = template.FuncMap{}
+
+var functions = template.FuncMap{
+	"simpleDate": render.SimpleDate,
+	"formatDate": render.FormatDate,
+}
 
 func getRoutes() http.Handler {
 	mux := chi.NewRouter()
@@ -66,7 +72,10 @@ func getRoutes() http.Handler {
 	mux.Use(SessionLoad)
 
 	mux.Get("/", Repo.Home)
+	mux.Post("/", Repo.Home)
 	mux.Get("/about", Repo.About)
+	mux.Get("/contact", Repo.Contact)
+
 	mux.Get("/generals-quarters", Repo.Generals)
 	mux.Get("/majors-suite", Repo.Majors)
 
@@ -74,12 +83,28 @@ func getRoutes() http.Handler {
 	mux.Post("/search-availability", Repo.PostAvailability)
 	mux.Post("/search-availability-json", Repo.AvailabilityJson)
 
-	mux.Get("/contact", Repo.Contact)
+	mux.Get("/choose-room/{id}", Repo.ChooseRoom)
+	mux.Get("/book-room", Repo.BookRoom)
 
 	mux.Get("/make-reservation", Repo.Reservation)
 	mux.Post("/make-reservation", Repo.PostReservation)
-
 	mux.Get("/reservation-summary", Repo.ReservationSummary)
+
+	mux.Get("/user/login", Repo.ShowLogin)
+	mux.Post("/user/login", Repo.PostShowLogin)
+	mux.Get("/user/logout", Repo.Logout)
+
+	mux.Route("/admin", func(mux chi.Router) {
+		mux.Get("/reservations-new", Repo.AdminReservationsNew)
+		mux.Get("/reservations-all", Repo.AdminReservationsAll)
+		mux.Get("/reservations-calendar", Repo.AdminReservationsCalendar)
+		mux.Get("/reservations/{src}/{id}", Repo.AdminShowReservation)
+
+		mux.Post("/reservations-calendar", Repo.AdminPostReservationsCalendar)
+		mux.Post("/reservations/{src}/{id}", Repo.AdminPostReservation)
+		mux.Post("/process-reservation/{src}/{id}", Repo.AdminProcessReservation)
+		mux.Post("/delete-reservation/{src}/{id}", Repo.AdminDeleteReservation)
+	})
 
 	fileServer := http.FileServer(http.Dir("./static/"))
 	mux.Handle("/static/*", http.StripPrefix("/static", fileServer))

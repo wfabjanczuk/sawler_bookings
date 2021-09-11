@@ -33,7 +33,12 @@ func main() {
 	fmt.Println("Starting mail listener")
 	listenForMail()
 
-	addr := fmt.Sprintf(":%s", os.Getenv("PORT"))
+	port := os.Getenv("PORT")
+	if port == "" {
+		log.Fatal("Error loading PORT from .env file")
+	}
+
+	addr := fmt.Sprintf(":%s", port)
 	fmt.Printf("Starting application on %s\n", addr)
 
 	srv := &http.Server{
@@ -68,8 +73,13 @@ func initialize() (*driver.DB, error) {
 		log.Fatal("Error loading .env file")
 	}
 
+	dsn := os.Getenv("DSN")
+	if dsn == "" {
+		log.Fatal("Error loading DSN from .env file")
+	}
+
 	log.Println("Connecting to the database...")
-	db, err := driver.ConnectSQL(os.Getenv("DSN"))
+	db, err := driver.ConnectSQL(dsn)
 
 	if err != nil {
 		log.Fatal("Cannot connect to database! Dying...")
