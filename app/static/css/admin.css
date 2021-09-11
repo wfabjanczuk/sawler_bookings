@@ -10,10 +10,13 @@
     max-width: 800px;
 }
 
+.resetCalendarDateButton,
 .deleteReservationButton {
     margin-left: auto;
 }
 
+.calendarHeader,
+.calendarButtons,
 .calendar {
     min-width: 640px;
     max-width: 640px;

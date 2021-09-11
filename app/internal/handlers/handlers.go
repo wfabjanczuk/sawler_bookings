@@ -13,8 +13,10 @@ import (
 	"github.com/wfabjanczuk/sawler_bookings/internal/render"
 	"github.com/wfabjanczuk/sawler_bookings/internal/repository"
 	"github.com/wfabjanczuk/sawler_bookings/internal/repository/dbrepo"
+	"log"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -634,7 +636,7 @@ func (m *Repository) AdminPostReservation(w http.ResponseWriter, r *http.Request
 }
 
 func prevalidateYearAndMonthQuery(year, month string) error {
-	if len(year) != 4 || (len(month) != 2 && len(month) != 1) || year[0] == '0' || month[0] == '0' {
+	if len(year) != 4 || len(month) != 2 {
 		return errors.New("invalid year or month")
 	}
 
@@ -733,29 +735,30 @@ func getWeekDays() []string {
 }
 
 func (m *Repository) AdminReservationsCalendar(w http.ResponseWriter, r *http.Request) {
-	now, err := m.getCalendarTime(r)
+	currentDate, err := m.getCalendarTime(r)
 	if err != nil {
 		m.App.ErrorLog.Println(err)
 	}
 
-	currentYear, currentMonth, _ := now.Date()
+	currentYear := currentDate.Format("2006")
+	currentMonth := currentDate.Format("01")
 
-	if r.URL.Query().Get("y") == "" {
+	if r.URL.Query().Get("y") == "" || err != nil {
 		http.Redirect(w, r,
-			fmt.Sprintf("/admin/reservations-calendar?y=%d&m=%d", currentYear, int(currentMonth)),
+			fmt.Sprintf("/admin/reservations-calendar?y=%s&m=%s", currentYear, currentMonth),
 			http.StatusSeeOther,
 		)
 		return
 	}
 
 	m.App.Session.Put(r.Context(), "calendar_current_year", currentYear)
-	m.App.Session.Put(r.Context(), "calendar_current_month", int(currentMonth))
+	m.App.Session.Put(r.Context(), "calendar_current_month", currentMonth)
 
-	next := now.AddDate(0, 1, 0)
-	previous := now.AddDate(0, -1, 0)
+	next := currentDate.AddDate(0, 1, 0)
+	previous := currentDate.AddDate(0, -1, 0)
 
-	currentLocation := now.Location()
-	firstDayOfMonth := time.Date(currentYear, currentMonth, 1, 0, 0, 0, 0, currentLocation)
+	currentLocation := currentDate.Location()
+	firstDayOfMonth := time.Date(currentDate.Year(), currentDate.Month(), 1, 0, 0, 0, 0, currentLocation)
 	lastDayOfMonth := firstDayOfMonth.AddDate(0, 1, -1)
 
 	rooms, err := m.DB.AllRooms()
@@ -765,10 +768,11 @@ func (m *Repository) AdminReservationsCalendar(w http.ResponseWriter, r *http.Re
 	}
 
 	data := map[string]interface{}{
-		"now":      now,
-		"rooms":    rooms,
-		"weeks":    getMonthWeeks(firstDayOfMonth, lastDayOfMonth, time.Sunday),
-		"weekDays": getWeekDays(),
+		"now":         time.Now().UTC(),
+		"currentDate": currentDate,
+		"rooms":       rooms,
+		"weeks":       getMonthWeeks(firstDayOfMonth, lastDayOfMonth, time.Sunday),
+		"weekDays":    getWeekDays(),
 	}
 
 	for _, room := range rooms {
@@ -776,8 +780,8 @@ func (m *Repository) AdminReservationsCalendar(w http.ResponseWriter, r *http.Re
 		blockMap := make(map[string]int)
 
 		for day := firstDayOfMonth; !day.After(lastDayOfMonth); day = nextDay(day) {
-			reservationMap[day.Format("2006-01-2")] = 0
-			blockMap[day.Format("2006-01-2")] = 0
+			reservationMap[day.Format("2006-01-02")] = 0
+			blockMap[day.Format("2006-01-02")] = 0
 		}
 
 		restrictions, err := m.DB.GetRoomRestrictionsByDate(room.ID, firstDayOfMonth, lastDayOfMonth)
@@ -789,9 +793,9 @@ func (m *Repository) AdminReservationsCalendar(w http.ResponseWriter, r *http.Re
 		for _, restriction := range restrictions {
 			for day := restriction.StartDate; !day.After(restriction.EndDate); day = nextDay(day) {
 				if restriction.ReservationID > 0 {
-					reservationMap[day.Format("2006-01-2")] = restriction.ReservationID
+					reservationMap[day.Format("2006-01-02")] = restriction.ReservationID
 				} else {
-					blockMap[day.Format("2006-01-2")] = restriction.ID
+					blockMap[day.Format("2006-01-02")] = restriction.ID
 				}
 			}
 		}
@@ -803,9 +807,66 @@ func (m *Repository) AdminReservationsCalendar(w http.ResponseWriter, r *http.Re
 	}
 
 	render.Template(w, r, "admin-reservations-calendar.page.tmpl", &models.TemplateData{
-		StringMap: getCalendarStringMap(previous, now, next),
+		StringMap: getCalendarStringMap(previous, currentDate, next),
 		Data:      data,
 	})
+}
+
+func (m *Repository) AdminPostReservationsCalendar(w http.ResponseWriter, r *http.Request) {
+	err := r.ParseForm()
+	if err != nil {
+		helpers.ServerError(w, err)
+		return
+	}
+
+	currentDate, err := m.getCalendarTime(r)
+	if err != nil {
+		m.App.ErrorLog.Println(err)
+	}
+
+	currentYear := currentDate.Format("2006")
+	currentMonth := currentDate.Format("01")
+
+	rooms, err := m.DB.AllRooms()
+	if err != nil {
+		helpers.ServerError(w, err)
+		return
+	}
+
+	form := forms.New(r.PostForm)
+
+	for _, room := range rooms {
+		currentBlockMap, ok := m.App.Session.Get(r.Context(), fmt.Sprintf("block_map_%d", room.ID)).(map[string]int)
+		if !ok {
+			helpers.ServerError(w, err)
+			return
+		}
+
+		for key, value := range currentBlockMap {
+			if value > 0 && !form.Has(fmt.Sprintf("remove_block_%d_%s", room.ID, key)) {
+				log.Println("would delete room restriction", value)
+			}
+		}
+	}
+
+	for name, _ := range r.PostForm {
+		if strings.HasPrefix(name, "add_block") {
+			exploded := strings.Split(name, "_")
+			roomID, err := strconv.Atoi(exploded[2])
+
+			if err != nil {
+				helpers.ServerError(w, err)
+				return
+			}
+
+			dateString := exploded[3]
+			log.Println("would add room restriction for room", roomID, "for date", dateString)
+		}
+	}
+
+	m.App.Session.Put(r.Context(), "flash", "Calendar changes saved")
+	redirectUrl := fmt.Sprintf("/admin/reservations-calendar?y=%s&m=%s", currentYear, currentMonth)
+	http.Redirect(w, r, redirectUrl, http.StatusSeeOther)
 }
 
 func (m *Repository) AdminProcessReservation(w http.ResponseWriter, r *http.Request) {
@@ -844,27 +905,4 @@ func (m *Repository) AdminDeleteReservation(w http.ResponseWriter, r *http.Reque
 
 	m.App.Session.Put(r.Context(), "flash", "Reservation deleted")
 	http.Redirect(w, r, fmt.Sprintf("/admin/reservations-%s", src), http.StatusSeeOther)
-}
-
-func (m *Repository) AdminPostReservationsCalendar(w http.ResponseWriter, r *http.Request) {
-	err := r.ParseForm()
-	if err != nil {
-		helpers.ServerError(w, err)
-		return
-	}
-
-	current_year, err := strconv.Atoi(r.Form.Get("y"))
-	if err != nil {
-		helpers.ServerError(w, err)
-		return
-	}
-
-	current_month, err := strconv.Atoi(r.Form.Get("m"))
-	if err != nil {
-		helpers.ServerError(w, err)
-		return
-	}
-
-	m.App.Session.Put(r.Context(), "flash", "Calendar changes saved")
-	http.Redirect(w, r, fmt.Sprintf("/admin/reservations-calendar?y=%d&m=%d", current_year, current_month), http.StatusSeeOther)
 }
