@@ -23,4 +23,5 @@ type DatabaseRepo interface {
 	DeleteReservation(reservationID int) error
 	AllRooms() ([]models.Room, error)
 	GetRoomRestrictionsByDate(roomID int, startDate, endDate time.Time) ([]models.RoomRestriction, error)
+	DeleteRoomRestriction(roomRestrictionID int) error
 }

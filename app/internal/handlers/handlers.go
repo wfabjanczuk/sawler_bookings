@@ -13,7 +13,6 @@ import (
 	"github.com/wfabjanczuk/sawler_bookings/internal/render"
 	"github.com/wfabjanczuk/sawler_bookings/internal/repository"
 	"github.com/wfabjanczuk/sawler_bookings/internal/repository/dbrepo"
-	"log"
 	"net/http"
 	"strconv"
 	"strings"
@@ -635,50 +634,24 @@ func (m *Repository) AdminPostReservation(w http.ResponseWriter, r *http.Request
 	http.Redirect(w, r, fmt.Sprintf("/admin/reservations-%s", src), http.StatusSeeOther)
 }
 
-func prevalidateYearAndMonthQuery(year, month string) error {
-	if len(year) != 4 || len(month) != 2 {
-		return errors.New("invalid year or month")
-	}
-
-	return nil
-}
-
 func (m *Repository) getCalendarTime(r *http.Request) (time.Time, error) {
-	var year, month int
-	var err error
+	var yearString, monthString string
 	now := time.Now().UTC()
 
 	if r.URL.Query().Get("y") == "" {
-		if m.App.Session.GetInt(r.Context(), "calendar_current_year") == 0 {
-			return now, nil
-		}
-
-		year = m.App.Session.GetInt(r.Context(), "calendar_current_year")
-		month = m.App.Session.GetInt(r.Context(), "calendar_current_month")
+		yearString = m.App.Session.GetString(r.Context(), "calendar_current_year")
+		monthString = m.App.Session.GetString(r.Context(), "calendar_current_month")
 	} else {
-		yearString := r.URL.Query().Get("y")
-		monthString := r.URL.Query().Get("m")
-
-		if err = prevalidateYearAndMonthQuery(yearString, monthString); err != nil {
-			return now, err
-		}
-
-		if year, err = strconv.Atoi(yearString); err != nil {
-			return now, err
-		}
-
-		if month, err = strconv.Atoi(monthString); err != nil {
-			return now, err
-		}
-
-		if month > 12 {
-			return now, errors.New("invalid month number")
-		}
+		yearString = r.URL.Query().Get("y")
+		monthString = r.URL.Query().Get("m")
 	}
 
-	now = time.Date(year, time.Month(month), 1, 0, 0, 0, 0, time.UTC)
+	currentDate, err := time.Parse("2006-01", fmt.Sprintf("%s-%s", yearString, monthString))
+	if err != nil {
+		return now, err
+	}
 
-	return now, nil
+	return currentDate.UTC(), nil
 }
 
 func getCalendarStringMap(previous, now, next time.Time) map[string]string {
@@ -819,9 +792,10 @@ func (m *Repository) AdminPostReservationsCalendar(w http.ResponseWriter, r *htt
 		return
 	}
 
-	currentDate, err := m.getCalendarTime(r)
+	currentDate, err := time.Parse("2006-01", fmt.Sprintf("%s-%s", r.PostForm.Get("y"), r.PostForm.Get("m")))
 	if err != nil {
-		m.App.ErrorLog.Println(err)
+		helpers.ServerError(w, err)
+		return
 	}
 
 	currentYear := currentDate.Format("2006")
@@ -838,13 +812,18 @@ func (m *Repository) AdminPostReservationsCalendar(w http.ResponseWriter, r *htt
 	for _, room := range rooms {
 		currentBlockMap, ok := m.App.Session.Get(r.Context(), fmt.Sprintf("block_map_%d", room.ID)).(map[string]int)
 		if !ok {
-			helpers.ServerError(w, err)
+			helpers.ServerError(w, errors.New("cannot get block map from session"))
 			return
 		}
 
 		for key, value := range currentBlockMap {
 			if value > 0 && !form.Has(fmt.Sprintf("remove_block_%d_%s", room.ID, key)) {
-				log.Println("would delete room restriction", value)
+				err = m.DB.DeleteRoomRestriction(value)
+
+				if err != nil {
+					helpers.ServerError(w, err)
+					return
+				}
 			}
 		}
 	}
@@ -860,7 +839,25 @@ func (m *Repository) AdminPostReservationsCalendar(w http.ResponseWriter, r *htt
 			}
 
 			dateString := exploded[3]
-			log.Println("would add room restriction for room", roomID, "for date", dateString)
+			layout := "2006-01-02"
+			date, err := time.Parse(layout, dateString)
+
+			if err != nil {
+				helpers.ServerError(w, err)
+				return
+			}
+
+			_, err = m.DB.InsertRoomRestriction(models.RoomRestriction{
+				RoomID:        roomID,
+				RestrictionID: 2,
+				StartDate:     date,
+				EndDate:       date,
+			})
+
+			if err != nil {
+				helpers.ServerError(w, err)
+				return
+			}
 		}
 	}
 

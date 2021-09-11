@@ -2,6 +2,7 @@ package dbrepo
 
 import (
 	"context"
+	"database/sql"
 	"errors"
 	"github.com/wfabjanczuk/sawler_bookings/internal/models"
 	"golang.org/x/crypto/bcrypt"
@@ -48,6 +49,14 @@ func (m *postgresDBRepo) InsertRoomRestriction(roomRes models.RoomRestriction) (
 	defer cancel()
 
 	var newID int
+	var nullableReservationId sql.NullInt32
+
+	if roomRes.ReservationID > 0 {
+		nullableReservationId = sql.NullInt32{
+			Int32: int32(roomRes.ReservationID),
+			Valid: true,
+		}
+	}
 
 	stmt := `insert into public.room_restriction 
 (room_id, restriction_id, reservation_id, start_date, end_date, created_at, updated_at) 
@@ -56,7 +65,7 @@ values ($1, $2, $3, $4, $5, $6, $7) returning id`
 	err := m.DB.QueryRowContext(ctx, stmt,
 		roomRes.RoomID,
 		roomRes.RestrictionID,
-		roomRes.ReservationID,
+		nullableReservationId,
 		roomRes.StartDate,
 		roomRes.EndDate,
 		time.Now(),
@@ -68,6 +77,17 @@ values ($1, $2, $3, $4, $5, $6, $7) returning id`
 	}
 
 	return newID, nil
+}
+
+func (m *postgresDBRepo) DeleteRoomRestriction(roomRestrictionID int) error {
+	ctx, cancel := context.WithTimeout(context.Background(), maxQueryTime)
+	defer cancel()
+
+	stmt := `delete from public.room_restriction where id = $1`
+
+	_, err := m.DB.ExecContext(ctx, stmt, roomRestrictionID)
+
+	return err
 }
 
 func (m *postgresDBRepo) SearchAvailabilityByDatesByRoomID(start, end time.Time, roomID int) (bool, error) {
