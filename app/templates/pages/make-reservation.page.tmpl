@@ -1,57 +1,59 @@
 {{template "base" .}}
 
 {{define "content"}}
-
 <div class="container">
     <div class="row">
         <div class="col">
-            <h1 class="text-center mt-5">Make reservation</h1>
+            <h1 class="text-center my-5">Make reservation</h1>
 
             {{$res := index .Data "reservation"}}
 
-            <h2 class="my-4">Reservation details</h2>
-            <div><strong>Arrival:</strong> {{index .StringMap "start_date"}}</div>
-            <div><strong>Departure:</strong> {{index .StringMap "end_date"}}</div>
-            <div><strong>Room name:</strong> {{$res.Room.RoomName}}</div>
+            <div class="d-flex justify-content-center">
+                <div class="reservationForm">
+                    <h2 class="my-4">Reservation details</h2>
+                    <div><strong>Room name:</strong> {{$res.Room.RoomName}}</div>
+                    <div><strong>Arrival:</strong> {{index .StringMap "start_date"}}</div>
+                    <div><strong>Departure:</strong> {{index .StringMap "end_date"}}</div>
 
-            <form action="/make-reservation" method="POST" novalidate> <!-- class="needs-validation" -->
-                <input type="hidden" name="csrf_token" value="{{.CsrfToken}}"/>
-                <input type="hidden" name="start_date" value="{{index .StringMap "start_date"}}"/>
-                <input type="hidden" name="end_date" value="{{index .StringMap "end_date"}}"/>
-                <input type="hidden" name="room_id" value="{{$res.RoomID}}"/>
+                    <form action="/make-reservation" method="POST" novalidate> <!-- class="needs-validation" -->
+                        <input type="hidden" name="csrf_token" value="{{.CsrfToken}}"/>
+                        <input type="hidden" name="start_date" value="{{index .StringMap "start_date"}}"/>
+                        <input type="hidden" name="end_date" value="{{index .StringMap "end_date"}}"/>
+                        <input type="hidden" name="room_id" value="{{$res.RoomID}}"/>
 
-                <div class="row my-4">
-                    <div class="col">
-                        <label for="firstName" class="form-label">First name:</label>
-                        {{with .Form.Errors.GetFirst "first_name"}}<label class="text-danger">{{.}}</label>{{end}}
-                        <input required type="text" name="first_name" class="form-control {{if .Form.Errors.GetFirst "first_name"}}is-invalid{{end}}" id="firstName" value="{{$res.FirstName}}">
-                    </div>
+                        <div class="row my-4">
+                            <div class="col">
+                                <label for="firstName" class="form-label">First name:</label>
+                                {{with .Form.Errors.GetFirst "first_name"}}<label class="text-danger">{{.}}</label>{{end}}
+                                <input required type="text" name="first_name" class="form-control {{if .Form.Errors.GetFirst "first_name"}}is-invalid{{end}}" id="firstName" value="{{$res.FirstName}}">
+                            </div>
+                        </div>
+                        <div class="row my-4">
+                            <div class="col">
+                                <label for="lastName" class="form-label">Last name:</label>
+                                {{with .Form.Errors.GetFirst "last_name"}}<label class="text-danger">{{.}}</label>{{end}}
+                                <input required type="text" name="last_name" class="form-control {{if .Form.Errors.GetFirst "last_name"}}is-invalid{{end}}" id="lastName" value="{{$res.LastName}}">
+                            </div>
+                        </div>
+                        <div class="row my-4">
+                            <div class="col">
+                                <label for="email" class="form-label">Email:</label>
+                                {{with .Form.Errors.GetFirst "email"}}<label class="text-danger">{{.}}</label>{{end}}
+                                <input required type="text" name="email" class="form-control {{if .Form.Errors.GetFirst "email"}}is-invalid{{end}}" id="email" value="{{$res.Email}}">
+                            </div>
+                        </div>
+                        <div class="row my-4">
+                            <div class="col">
+                                <label for="phone" class="form-label">Phone number:</label>
+                                {{with .Form.Errors.GetFirst "phone"}}<label class="text-danger">{{.}}</label>{{end}}
+                                <input required type="text" name="phone" class="form-control {{if .Form.Errors.GetFirst "phone"}}is-invalid{{end}}" id="phone" value="{{$res.Phone}}">
+                            </div>
+                        </div>
+                        <input type="submit" class="btn btn-primary my-4" value="Make reservation">
+                    </form>
                 </div>
-                <div class="row my-4">
-                    <div class="col">
-                        <label for="lastName" class="form-label">Last name:</label>
-                        {{with .Form.Errors.GetFirst "last_name"}}<label class="text-danger">{{.}}</label>{{end}}
-                        <input required type="text" name="last_name" class="form-control {{if .Form.Errors.GetFirst "last_name"}}is-invalid{{end}}" id="lastName" value="{{$res.LastName}}">
-                    </div>
-                </div>
-                <div class="row my-4">
-                    <div class="col">
-                        <label for="email" class="form-label">Email:</label>
-                        {{with .Form.Errors.GetFirst "email"}}<label class="text-danger">{{.}}</label>{{end}}
-                        <input required type="text" name="email" class="form-control {{if .Form.Errors.GetFirst "email"}}is-invalid{{end}}" id="email" value="{{$res.Email}}">
-                    </div>
-                </div>
-                <div class="row my-4">
-                    <div class="col">
-                        <label for="phone" class="form-label">Phone number:</label>
-                        {{with .Form.Errors.GetFirst "phone"}}<label class="text-danger">{{.}}</label>{{end}}
-                        <input required type="text" name="phone" class="form-control {{if .Form.Errors.GetFirst "phone"}}is-invalid{{end}}" id="phone" value="{{$res.Phone}}">
-                    </div>
-                </div>
-                <input type="submit" class="btn btn-primary my-4" value="Make reservation">
-            </form>
+            </div>
         </div>
     </div>
 </div>
-
 {{end}}

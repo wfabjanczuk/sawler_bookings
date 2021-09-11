@@ -35,7 +35,7 @@
                     <td>{{.Room.RoomName}}</td>
                     <td>{{simpleDate .StartDate}}</td>
                     <td>{{simpleDate .EndDate}}</td>
-                    <td>{{if eq .Processed 1}}Yes{{else}}No{{end}}</td>
+                    <td>{{if gt .Processed 0}}Yes{{else}}No{{end}}</td>
                 </tr>
             {{end}}
             </tbody>

@@ -5,16 +5,18 @@
     <div class="container">
         <div class="row">
             <div class="col">
-                <h1 class="text-center my-4">Choose a room</h1>
+                <h1 class="text-center my-5">Choose a room</h1>
 
                 {{$rooms := index .Data "rooms"}}
-                <ul>
-                    {{range $rooms}}
-                        <li>
-                            <a href="/choose-room/{{.ID}}">{{.RoomName}}</a>
-                        </li>
-                    {{end}}
-                </ul>
+                <div class="d-flex justify-content-center">
+                    <ul class="list-group roomList">
+                        {{range $rooms}}
+                            <li class="list-group-item">
+                                <a href="/choose-room/{{.ID}}">{{.RoomName}}</a>
+                            </li>
+                        {{end}}
+                    </ul>
+                </div>
             </div>
         </div>
     </div>

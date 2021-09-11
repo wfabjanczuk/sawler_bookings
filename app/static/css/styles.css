@@ -52,3 +52,12 @@
     height: 100%;
     object-fit: cover;
 }
+
+.roomList {
+    width: 640px;
+}
+
+.reservationForm,
+.reservationSummary {
+    width: 800px;
+}
