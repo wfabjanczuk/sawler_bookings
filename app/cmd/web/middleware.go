@@ -24,11 +24,22 @@ func SessionLoad(next http.Handler) http.Handler {
 	return session.LoadAndSave(next)
 }
 
-func Auth(next http.Handler) http.Handler {
+func Authentication(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if !helpers.IsAuthenticated(r) {
 			session.Put(r.Context(), "error", "You must log in first")
 			http.Redirect(w, r, "/user/login", http.StatusSeeOther)
+			return
+		}
+		next.ServeHTTP(w, r)
+	})
+}
+
+func Authorization(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if !helpers.IsAuthorized(r) {
+			session.Put(r.Context(), "error", "Not authorized")
+			http.Redirect(w, r, "/admin/reservations-calendar", http.StatusSeeOther)
 			return
 		}
 		next.ServeHTTP(w, r)

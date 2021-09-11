@@ -191,28 +191,28 @@ func (m *postgresDBRepo) UpdateUser(user models.User) error {
 	return err
 }
 
-func (m *postgresDBRepo) Authenticate(email, password string) (int, string, error) {
+func (m *postgresDBRepo) Authenticate(email, password string) (int, int, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), maxQueryTime)
 	defer cancel()
 
-	var id int
+	var id, accessLevel int
 	var passwordHash string
 
-	query := `select u.id, u.password from public.user u where u.email = $1`
+	query := `select u.id, u.access_level, u.password from public.user u where u.email = $1`
 
-	err := m.DB.QueryRowContext(ctx, query, email).Scan(&id, &passwordHash)
+	err := m.DB.QueryRowContext(ctx, query, email).Scan(&id, &accessLevel, &passwordHash)
 	if err != nil {
-		return 0, "", errors.New("incorrect email")
+		return 0, 0, errors.New("incorrect email")
 	}
 
 	err = bcrypt.CompareHashAndPassword([]byte(passwordHash), []byte(password))
 	if err == bcrypt.ErrMismatchedHashAndPassword {
-		return 0, "", errors.New("incorrect password")
+		return 0, 0, errors.New("incorrect password")
 	} else if err != nil {
-		return 0, "", err
+		return 0, 0, err
 	}
 
-	return id, passwordHash, nil
+	return id, accessLevel, nil
 }
 
 func (m *postgresDBRepo) AllReservations() ([]models.Reservation, error) {

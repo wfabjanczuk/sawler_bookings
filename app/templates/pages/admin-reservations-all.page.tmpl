@@ -20,6 +20,7 @@
                 <th>Room</th>
                 <th>Arrival</th>
                 <th>Departure</th>
+                <th>Processed</th>
             </tr>
             </thead>
             <tbody>
@@ -34,6 +35,7 @@
                     <td>{{.Room.RoomName}}</td>
                     <td>{{simpleDate .StartDate}}</td>
                     <td>{{simpleDate .EndDate}}</td>
+                    <td>{{if eq .Processed 1}}Yes{{else}}No{{end}}</td>
                 </tr>
             {{end}}
             </tbody>

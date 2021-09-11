@@ -31,3 +31,9 @@ func ServerError(w http.ResponseWriter, err error) {
 func IsAuthenticated(r *http.Request) bool {
 	return app.Session.Exists(r.Context(), "user_id")
 }
+
+func IsAuthorized(r *http.Request) bool {
+	accessLevel := app.Session.GetInt(r.Context(), "access_level")
+
+	return r.Method != "POST" || accessLevel > 0
+}

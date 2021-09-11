@@ -509,7 +509,7 @@ func (m *Repository) PostShowLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id, _, err := m.DB.Authenticate(r.Form.Get("email"), r.Form.Get("password"))
+	id, accessLevel, err := m.DB.Authenticate(r.Form.Get("email"), r.Form.Get("password"))
 	if err != nil {
 		m.App.Session.Put(r.Context(), "error", "Invalid email or password")
 		form.Set("password", "")
@@ -520,8 +520,9 @@ func (m *Repository) PostShowLogin(w http.ResponseWriter, r *http.Request) {
 	}
 
 	m.App.Session.Put(r.Context(), "user_id", id)
+	m.App.Session.Put(r.Context(), "access_level", accessLevel)
 	m.App.Session.Put(r.Context(), "flash", "Successfully logged in")
-	http.Redirect(w, r, "/admin/dashboard", http.StatusSeeOther)
+	http.Redirect(w, r, "/admin/reservations-calendar", http.StatusSeeOther)
 }
 
 func (m *Repository) Logout(w http.ResponseWriter, r *http.Request) {
@@ -537,10 +538,6 @@ func (m *Repository) Logout(w http.ResponseWriter, r *http.Request) {
 
 	m.App.Session.Put(r.Context(), "flash", "Successfully logged out")
 	http.Redirect(w, r, "/user/login", http.StatusSeeOther)
-}
-
-func (m *Repository) AdminDashboard(w http.ResponseWriter, r *http.Request) {
-	render.Template(w, r, "admin-dashboard.page.tmpl", &models.TemplateData{})
 }
 
 func (m *Repository) AdminReservationsAll(w http.ResponseWriter, r *http.Request) {
