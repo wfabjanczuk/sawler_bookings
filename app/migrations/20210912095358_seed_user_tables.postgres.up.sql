@@ -1,0 +1,2 @@
+INSERT INTO public.user (first_name, last_name, email, password, access_level, created_at, updated_at) VALUES ('Admin', 'Admin', 'admin@admin.com', 'admin_password_hash', 1, '2021-09-09 23:15:03.000000', '2021-09-09 23:15:04.000000');
+INSERT INTO public.user (first_name, last_name, email, password, access_level, created_at, updated_at) VALUES ('Viewer', 'Viewer', 'viewer@viewer.com', 'viewer_password_hash', 0, '2021-09-09 23:15:03.000000', '2021-09-09 23:15:04.000000');
