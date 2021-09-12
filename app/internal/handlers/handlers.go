@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/go-chi/chi/v5"
 	"github.com/wfabjanczuk/sawler_bookings/internal/config"
+	"github.com/wfabjanczuk/sawler_bookings/internal/constants"
 	"github.com/wfabjanczuk/sawler_bookings/internal/driver"
 	"github.com/wfabjanczuk/sawler_bookings/internal/forms"
 	"github.com/wfabjanczuk/sawler_bookings/internal/helpers"
@@ -77,8 +78,8 @@ func (m *Repository) Reservation(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	startDate := reservation.StartDate.Format("2006-01-02")
-	endDate := reservation.EndDate.Format("2006-01-02")
+	startDate := reservation.StartDate.Format(constants.DefaultDateFormat)
+	endDate := reservation.EndDate.Format(constants.DefaultDateFormat)
 
 	render.Template(w, r, "make-reservation.page.tmpl", &models.TemplateData{
 		Form: forms.New(nil),
@@ -107,7 +108,7 @@ func (m *Repository) PostReservation(w http.ResponseWriter, r *http.Request) {
 	reservation.Email = r.Form.Get("email")
 	reservation.Phone = r.Form.Get("phone")
 
-	layout := "2006-01-02"
+	layout := constants.DefaultDateFormat
 	sd := r.Form.Get("start_date")
 	reservation.StartDate, err = time.Parse(layout, sd)
 	if err != nil {
@@ -256,7 +257,7 @@ func (m *Repository) PostAvailability(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	layout := "2006-01-02"
+	layout := constants.DefaultDateFormat
 	startDate, err := time.Parse(layout, r.Form.Get("start_date"))
 
 	if err != nil {
@@ -314,7 +315,7 @@ type availabilityJsonResponse struct {
 }
 
 func (m *Repository) AvailabilityJson(w http.ResponseWriter, r *http.Request) {
-	layout := "2006-01-02"
+	layout := constants.DefaultDateFormat
 
 	err := r.ParseForm()
 	if err != nil {
@@ -397,8 +398,8 @@ func (m *Repository) ReservationSummary(w http.ResponseWriter, r *http.Request) 
 	}
 
 	m.App.Session.Remove(r.Context(), "reservation")
-	startDate := reservation.StartDate.Format("2006-01-02")
-	endDate := reservation.EndDate.Format("2006-01-02")
+	startDate := reservation.StartDate.Format(constants.DefaultDateFormat)
+	endDate := reservation.EndDate.Format(constants.DefaultDateFormat)
 
 	render.Template(w, r, "reservation-summary.page.tmpl", &models.TemplateData{
 		Data: map[string]interface{}{
@@ -446,7 +447,7 @@ func (m *Repository) BookRoom(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	layout := "2006-01-02"
+	layout := constants.DefaultDateFormat
 	sd := r.URL.Query().Get("s")
 	startDate, err := time.Parse(layout, sd)
 	if err != nil {
@@ -750,8 +751,8 @@ func (m *Repository) AdminReservationsCalendar(w http.ResponseWriter, r *http.Re
 		blockMap := make(map[string]int)
 
 		for day := firstDayOfMonth; !day.After(lastDayOfMonth); day = nextDay(day) {
-			reservationMap[day.Format("2006-01-02")] = 0
-			blockMap[day.Format("2006-01-02")] = 0
+			reservationMap[day.Format(constants.DefaultDateFormat)] = 0
+			blockMap[day.Format(constants.DefaultDateFormat)] = 0
 		}
 
 		restrictions, err := m.DB.GetRoomRestrictionsByDate(room.ID, firstDayOfMonth, lastDayOfMonth)
@@ -763,9 +764,9 @@ func (m *Repository) AdminReservationsCalendar(w http.ResponseWriter, r *http.Re
 		for _, restriction := range restrictions {
 			for day := restriction.StartDate; !day.After(restriction.EndDate); day = nextDay(day) {
 				if restriction.ReservationID > 0 {
-					reservationMap[day.Format("2006-01-02")] = restriction.ReservationID
+					reservationMap[day.Format(constants.DefaultDateFormat)] = restriction.ReservationID
 				} else {
-					blockMap[day.Format("2006-01-02")] = restriction.ID
+					blockMap[day.Format(constants.DefaultDateFormat)] = restriction.ID
 				}
 			}
 		}
@@ -836,7 +837,7 @@ func (m *Repository) AdminPostReservationsCalendar(w http.ResponseWriter, r *htt
 			}
 
 			dateString := exploded[3]
-			layout := "2006-01-02"
+			layout := constants.DefaultDateFormat
 			date, err := time.Parse(layout, dateString)
 
 			if err != nil {

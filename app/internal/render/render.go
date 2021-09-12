@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/justinas/nosurf"
 	"github.com/wfabjanczuk/sawler_bookings/internal/config"
+	"github.com/wfabjanczuk/sawler_bookings/internal/constants"
 	"github.com/wfabjanczuk/sawler_bookings/internal/models"
 	"html/template"
 	"log"
@@ -20,7 +21,7 @@ var functions = template.FuncMap{
 }
 
 func SimpleDate(t time.Time) string {
-	return t.Format("2006-01-02")
+	return t.Format(constants.DefaultDateFormat)
 }
 
 func FormatDate(t time.Time, layout string) string {
