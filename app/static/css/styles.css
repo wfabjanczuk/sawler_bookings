@@ -19,6 +19,36 @@
     font-size: 80%;
 }
 
+@media only screen and (max-width: 600px){
+    .content-container {
+        padding-bottom: 6em;
+    }
+
+    .footer-container {
+        height: 6em;
+    }
+}
+
+@media only screen and (max-width: 400px){
+    .content-container {
+        padding-bottom: 8em;
+    }
+
+    .footer-container {
+        height: 8em;
+    }
+}
+
+@media only screen and (max-width: 330px){
+    .content-container {
+        padding-bottom: 10em;
+    }
+
+    .footer-container {
+        height: 10em;
+    }
+}
+
 .room-image {
     max-width: 50%;
 }
@@ -60,4 +90,12 @@
 .reservationForm,
 .reservationSummary {
     width: 800px;
+}
+
+.contactData {
+    width: 1000px;
+}
+
+.loginForm {
+    width: 640px;
 }
