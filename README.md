@@ -4,10 +4,6 @@ Golang learning project. Simple web application for making room reservations in 
 
 The repository is following Udemy course [Building Modern Web Applications with Go (Golang)](https://www.udemy.com/course/building-modern-web-applications-with-go) by professor [Trevor Sawler](https://github.com/tsawler).
 
-## Example
-
-You can see the deployed application here: http://go-example-app.eu/
-
 ## Development
 
 Run: `docker-compose up`
