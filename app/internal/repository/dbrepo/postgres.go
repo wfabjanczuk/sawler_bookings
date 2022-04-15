@@ -432,7 +432,7 @@ func (m *postgresDBRepo) GetRoomRestrictionsByDate(roomID int, startDate, endDat
 	var roomRestrictions []models.RoomRestriction
 
 	query := `select id, coalesce(reservation_id, 0), restriction_id, room_id, start_date, end_date, created_at, updated_at
-	from "room_restriction" where $1 <= start_date and end_date <= $2 and room_id = $3 order by start_date asc`
+	from "room_restriction" where (start_date >= $1 or $2 <= end_date) and room_id = $3 order by start_date asc`
 
 	rows, err := m.DB.QueryContext(ctx, query, startDate, endDate, roomID)
 	if err != nil {
